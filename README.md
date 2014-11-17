@@ -11,6 +11,7 @@ Current Module version: 0.1.1. Issues fixed:
 - #1: Checks missing in label.php
 - #2: Comments for sellstrom.php
 - #4: Removed the unused $session_id variable to avoid the Notices
+- #6: Small design issue in settings page on PrestaShop 1.5
 
 ### Update October 31, 2014
 

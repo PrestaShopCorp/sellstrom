@@ -70,21 +70,20 @@
 		<div class="sellstrom-leftCol">
 			<h3>{l s='SGS Saves  You Time  and Money' mod='sellstrom'}</h3>
 			<p>{l s='The SGS Shipping Module simplifies your shipping and saves your company money. Your customer chooses the carrier and transit time - UPS, FedEx, USPS and DHL - all on one platform. Once the customer chooses the carrier and service, the shipping label is automatically created within your order.' mod='sellstrom'}</p>
-			<div class="halfCol floatLeft">
-					<table border=0 cellspacing="50px">
-						<tr>
-							<td><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/click.png" class="carriers-logos" height="90px" /></td>
-							<td><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/print.png" class="carriers-logos" height="90px" /></td>
-							<td><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/label.png" class="carriers-logos" height="90px" /></td>
-						</tr>
-						<tr>
-							<td align=center valign=top>Click</td>
-							<td align=center valign=top>Print</td>
-							<td align=center valign=top>Label</td>
-						</tr>
-					</table>
-			</div>
-			<div class="halfCol floatRight">
+				<div>
+				<table border=0 width="80%">
+					<tr>
+						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/click.png" class="carriers-logos" height="90px" /></td>
+						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/print.png" class="carriers-logos" height="90px" /></td>
+						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/label.png" class="carriers-logos" height="90px" /></td>
+					</tr>
+					<tr>
+						<td align=center valign=top>Click</td>
+						<td align=center valign=top>Print</td>
+						<td align=center valign=top>Label</td>
+					</tr>
+				</table>
+				<br/>
 				<p>{l s='You just click, print and place the shipping label on the box. The tracking information is downloaded into the order and available for your customer. No more entering orders or tracking numbers.' mod='sellstrom'}</p>
 			</div>
 		</div>
