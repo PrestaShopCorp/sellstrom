@@ -40,8 +40,6 @@ class SSCredentials
 	/** @var string $login_id login token */
 	public $login_id = null;
 
-	public $session_id = null;
-
 	public function __construct($username, $password, $id)
 	{
 		$this->id = $id;

@@ -25,10 +25,6 @@
 *  International Registered Trademark & Property of PrestaShop SA
 */
 
-#error_reporting(E_ERROR);
-
-#require_once('/usr/local/src/ship_api/libs/ishippers/Utilities/HelperP.php');
-
 if (!defined('_PS_VERSION_'))
 	exit;
 
@@ -131,25 +127,25 @@ class Sellstrom extends CarrierModule
 												`location` 
 										FROM `'._DB_PREFIX_.'sellstrom_tracking_event` 
 										WHERE `id_order` = '.(int)$params['order']->id);
-		$html = '';
+		$tracking_data = array();
 		if ($r && count($r))
 		{
-				$html .= '<div class="table_block"><table class="std"><tr><th>'.$this->l('Date').
-							'</th><th>'.$this->l('Event').'</th><th>'.$this->l('Location').
-							'</th><th>'.$this->l('Tracking number').'</th></tr>';
-				foreach ($r as $line)
-					$html .= '<tr><td>'.Tools::safeOutput(Tools::displayDate($line['date'], null, true)).'</td>
-								<td>'.Tools::safeOutput($line['event']).'</td>
-								<td>'.Tools::safeOutput($line['location']).'</td>
-								<td>'.Tools::safeOutput($line['tracking_number']).'</td></tr>';
-				$html .= '</table></div>';
+			foreach ($r as $line)
+			{
+				$tracking_data[] = array(
+					'date' => Tools::safeOutput(Tools::displayDate($line['date'], null, true)),
+					'event' => Tools::safeOutput($line['event']),
+					'location' => Tools::safeOutput($line['location']),
+					'tracking_number' => Tools::safeOutput($line['tracking_number'])
+				);
+			}
 		}
 
-			return '<script type="text/javascript">
-$(function() {
-$(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\'', "\\\n"), $html).'\');
-});
-</script>';
+		$this->context->smarty->assign(array(
+			'content_data' => $tracking_data
+		));
+
+		return $this->display(__FILE__, 'views/templates/admin/trackingdetails.tpl');
 	}
 
 	public function uninstall()
@@ -164,8 +160,6 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 
 	protected function instanciateClient()
 	{
-		###HelperP::log('instanciateClient called.');
-
 		if ($this->init)
 			return;
 		$this->init = true;
@@ -187,25 +181,19 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 													'TrackingNumbers' => 'SSTrackingNumbers',
 												))); // Refer to http://us3.php.net/manual/en/ref.soap.php for more information
 
-		###HelperP::log('instanciateClient :: calling SSCredentials');
 		$this->static_cred = new SSCredentials(Configuration::get('SELLSTROM_LOGIN'),
 												Configuration::get('SELLSTROM_PASSWORD'),
 												Configuration::get('SELLSTROM_USER_ID'));
-		###HelperP::log('instanciateClient :: credentials == ' . json_encode($this->static_cred));
 	}
 
 	public function getContent()
 	{
-		###HelperP::log('Called getContent...');
 		// Add fancybox for the video
 		$this->context->controller->addJQueryPlugin('fancybox');
 
-		###HelperP::log('Going to call checkRequirement ...');
 		$this->checkRequirement();
-		###HelperP::log('Going to call processFormGetContent ...');
 		$this->processFormGetContent();
 
-		###HelperP::log('Going to call smarty->assign ...');
 		$this->context->smarty->assign(array(
 				'merchant' => array(
 					'company' => Configuration::get('PS_SHOP_NAME'),
@@ -225,7 +213,6 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 
 	protected function processFormGetContent()
 	{
-		###HelperP::log('Called processFormGetContent.');
 		if (Tools::isSubmit('login'))
 		{
 			Configuration::updateValue('SELLSTROM_LOGIN', Tools::getValue('login'));
@@ -297,11 +284,9 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 
 	protected function forgePackagesFromCart(Cart $cart)
 	{
-		###HelperP::log('Calling forgePackagesFromCart ...');
 		if (!Validate::isLoadedObject($cart))
 			return null;
 		$packages = array();
-		###HelperP::log('   cart getProducts ====> ' . json_encode($cart->getProducts()));
 		foreach ($cart->getProducts() as $product)
 		{
 			$p = new SSProduct();
@@ -321,11 +306,9 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 
 	protected function getQuotes(Cart $cart, Address $addr)
 	{
-		###HelperP::log('Called getQuotes.');
 		if (!Validate::isLoadedObject($cart) || !Validate::isLoadedObject($addr))
 			return null;
 
-		###HelperP::log('Instantiating the SOAP Client from getQuotes.');
 		// Instanciate the SOAP Client
 		$this->instanciateClient();
 
@@ -336,23 +319,17 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 
 		$packages = $this->forgePackagesFromCart($this->context->cart);
 
-		###HelperP::log('Creating SSQuoteRequest webservice from getQuotes.');
-		###HelperP::log('  packages ===> ' . json_encode($packages));
 		$quote_request = new SSQuoteRequest($src_addr, $dst_addr, $packages);
-		###HelperP::log(print_r($quote_request));
 		$quote_request->setCredentials($this->static_cred);
 
 		try
 		{
-			###HelperP::log('Calling SSQuoteRequest::getQuotes webservice from getQuotes.');
 			$ret = $this->_client->getQuotes($quote_request);
 			if (!count($ret->packages))
 				$ret->packages = $packages;
 
-			###HelperP::log('Quotes returned from webservice ===> ' . json_encode($ret) . "\n");
 			//unset($this->static_cred->login);
 			$this->static_cred->login_id = $ret->login_id;
-			$this->static_cred->session_id = $ret->session_id;
 		}
 		catch (SoapFault $e)
 		{
@@ -368,17 +345,12 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 	 */
 	protected function getCartHash(Cart $cart)
 	{
-		###HelperP::log('Called getCartHash.');
-		###HelperP::log('Cart date_upd === ' . $cart->date_upd);
-		###HelperP::log('Cart details === ' . json_encode($cart->getProducts()));
 		if (!Validate::isLoadedObject($cart))
 			return null;
 
 		$hash = (int)$cart->id.'_'.(int)$cart->id_address_delivery.'___';
 		foreach ($cart->getProducts() as $p)
 			$hash .= (int)$p['id_product'].'_'.(int)$p['id_product_attribute'].'__'.(int)$p['cart_quantity'].'|'; //'__'.$cart->date_upd.'|';
-
-		###HelperP::log('Cart hash === ' . md5($hash));
 
 		return md5($hash);
 	}
@@ -388,7 +360,6 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 	 */
 	protected function getCarrierFromQuote(SSQuote $quote)
 	{
-		###HelperP::log('Called  getCarrierFromQuote ... Quote ==>  ' . json_encode($quote));
 		// Retrieve the id_carrier from the database
 		$id_carrier = (int)Db::getInstance()->getValue('SELECT `id_carrier` 
 							FROM `'._DB_PREFIX_.'sellstrom_carrier` 
@@ -401,7 +372,6 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 		// If there is no id_carrier or if the carrier does not laod, create new ones
 		if (!$id_carrier || !isset($carrier) || !Validate::isLoadedObject($carrier))
 		{
-			###HelperP::log("\nCalling installExternalCarrier from getCarrierFromQuote");
 			$id_carrier = $this->installExternalCarrier($quote);
 			Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'sellstrom_carrier` 
 					(`id_carrier`, `hash`) 
@@ -415,7 +385,6 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 	 */
 	protected function getCacheQuotes()
 	{
-		###HelperP::log('getCacheQuotes called.');
 		$hash = $this->getCartHash($this->context->cart);
 		$current_time = time();
 		$crep = Db::getInstance()->ExecuteS('SELECT `id_carrier`,
@@ -435,11 +404,9 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 				break;
 			}
 			$time_diff = $current_time - $qtime;
-			###HelperP::log("Current time = $current_time .... QTime = $qtime .... Time Diff = $time_diff");
 			# If the quotes are cached for more than a day then delete the cache quotes from DB.
 			if ($time_diff >= (24 * 3600))
 			{
-				###HelperP::log('Deleting the cache quotes from DB');
 				Db::getInstance()->Execute('DELETE from `'._DB_PREFIX_.'sellstrom_quote_cache` WHERE `product_hash` = \''.pSQL($hash).'\'');
 				return false;
 			}
@@ -483,28 +450,23 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 	 */
 	public function hookHeader()
 	{
-		####HelperP::log('hookHeader called.');
 		if (Tools::getValue('controller') == 'order-opc' ||
 			(($_SERVER['PHP_SELF'] == 'order.php' || Tools::getValue('controller') == 'order') &&
 				Tools::getValue('step') == 2))
 		{
-			####HelperP::log('hookHeader called while placing an order.');
 			// Load the delivery address, if fail, return.
 			$addr = new Address($this->context->cart->id_address_delivery);
 			if (!Validate::isLoadedObject($addr))
 				return;
 
-			####HelperP::log('calling getCacheQuotes from hookHeader.');
 			$cache_quotes = $this->getCacheQuotes();
-			#$cache_quotes = false;
 			if (!$cache_quotes)
 			{
-				####HelperP::log('Could not find cache_quotes.  Calling cacheQuotes from hookHeader.');
 				$resp = $this->getQuotes($this->context->cart, $addr);
 				$this->cacheQuotes($resp->quote_id, $resp->quotes, $resp->login_id);
 			}
 
-			$html = '';
+			$carrier_data = array();
 			foreach ($this->new_carriers as $id_carrier)
 			{
 				// If the carrier fail to load, skip it
@@ -514,48 +476,31 @@ $(\'#order-detail-content\').after(\''.str_replace(array('\'', "\n"), array('\\\
 
 				$this->id_carrier = (int)$carrier->id;
 
-				// item / alternate-iten
-				$html .= '
-<div class="delivery_option '.(!($carrier->id % 2) ? 'alternate_' : '').'item">
-	<input class="delivery_option_radio" type="radio"
-			name="delivery_option['.(int)$this->context->cart->id_address_delivery.']"
-			onchange="updateExtraCarrier(\''.(int)$carrier->id.',\', '.(int)$this->context->cart->id_address_delivery.');"
-			id="delivery_option_'.(int)$this->context->cart->id_address_delivery.'_'.(int)$carrier->id.'"
-			value="'.(int)$carrier->id.'," checked="checked">
-
-	<label for="delivery_option_'.(int)$this->context->cart->id_address_delivery.'_'.(int)$carrier->id.'">
-	<table class="resume">
-		 <tr>
-		 <td class="delivery_option_logo"><img src="'._THEME_SHIP_DIR_.(int)$carrier->id.'.jpg" alt="'.Tools::safeOutput($carrier->name).'" /></td>
-		 <td>
-		 <div class="delivery_option_title">'.str_replace('\'', '\\\'', Tools::safeOutput($carrier->name)).'</div>
-		 <div class="delivery_option_delay">'.
-			str_replace('\'', '\\\'', Tools::safeOutput($carrier->delay[(int)$this->context->cookie->id_lang])).
-		'</div>
-		 </td>
-		 <td><div class="delivery_option_price">'.
-			Tools::safeOutput(Tools::displayPrice($this->getOrderShippingCost($this->context->cart,
-										Configuration::get('PS_SHIPPING_HANDLING')))).' (tax incl.)</div></td>
-		 </tr>
-		 </table>
-
-		 <input type="hidden" value="'.(int)$carrier->id.'" name="id_carrier">
-		 </label>
-</div>';
+				$carrier_data[] = array(
+					'carrier_id' => (int)$carrier->id,
+					'div_main_class' => (!($carrier->id % 2) ? 'alternate_' : ''),
+					'label_for' => 'delivery_option_'.(int)$this->context->cart->id_address_delivery.'_'.(int)$carrier->id,
+					'radio_name' => 'delivery_option['.(int)$this->context->cart->id_address_delivery.']',
+					'radio_onchange' => 'updateExtraCarrier(\''.(int)$carrier->id.',\', '.(int)$this->context->cart->id_address_delivery.');',
+					'radio_id' => 'delivery_option_'.(int)$this->context->cart->id_address_delivery.'_'.(int)$carrier->id,
+					'radio_value' => (int)$carrier->id.',',
+					'carrier_img_src' => _THEME_SHIP_DIR_.(int)$carrier->id.'.jpg',
+					'carrier_img_alt' => Tools::safeOutput($carrier->name),
+					'delivery_option_title' => str_replace('\'', '\\\'', Tools::safeOutput($carrier->name)),
+					'delivery_option_delay' => str_replace('\'', '\\\'', Tools::safeOutput($carrier->delay[(int)$this->context->cookie->id_lang])),
+					'delivery_option_price' => Tools::safeOutput(Tools::displayPrice($this->getOrderShippingCost(
+															$this->context->cart, Configuration::get('PS_SHIPPING_HANDLING')))).' (tax incl.)'
+				);
 			}
-			return '<script type="text/javascript">
-$(function() {
-$(\'#noCarrierWarning\').hide();
 
-$(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.str_replace(array('\'', "\n"), array('\\\'', "\\\n"), $html).'\');
-});
-</script>';
+			$this->context->smarty->assign(array('content_data' => $carrier_data));
+
+			return $this->display(__FILE__, 'views/templates/admin/hookheader.tpl');
 		}
 	}
 
 	public function validateSSShipping($params)
 	{
-		####HelperP::log("Called validateSSShipping ...");
 		// Retrieve the id_order
 		$id_order = (int)Order::getOrderByCartId((int)$params['cart']->id);
 
@@ -575,14 +520,12 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 					AND `id_address` = '.(int)$params['cart']->id_address_delivery;
 
 		$r = Db::getInstance()->getRow($quote_sql);
-		####HelperP::log('quoteSQL == ' . $quote_sql);
 
 		if (!$r)
 		{
 			$this->_errors[] = $this->l('This order is corrupt (cache missing). Please contact Sellstrom to validate shipment.');
 			return false;
 		}
-		####HelperP::log("sellstrom_quote_cache data == " . json_encode($r));
 		$login_id = pSQL($r['login_id']);
 		$quote_id = pSQL($r['quote_id']);
 		$quote_ref_id = pSQL($r['quote_ref']);
@@ -595,7 +538,6 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 										WHERE `id_order` = '.(int)$id_order);
 		$total_shipping_cost = pSQL($sr['total_shipping']);
 		$total_product_cost  = pSQL($sr['total_paid_tax_incl']);
-		####HelperP::log('total_shipping_cost == ' . $total_shipping_cost);
 
 		// Get the default currency of the shop - Configuration::get('PS_CURRENCY_DEFAULT')
 		$default_currency = Configuration::get('PS_CURRENCY_DEFAULT');
@@ -607,8 +549,6 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 		//unset($this->static_cred->login);
 		$this->static_cred->login_id = $login_id;
 
-		####HelperP::log("Calling BookShipment ... ");
-		####HelperP::log("Currency == $cur_iso_code");
 		try
 		{
 			$ret = $this->_client->bookShipment(array(
@@ -621,15 +561,12 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 							));
 			//unset($this->static_cred->login);
 			$this->static_cred->login_id = $ret->login_id;
-			$this->static_cred->session_id = $ret->session_id;
 		}
 		catch (Exception $e)
 		{
 			$this->_errors[] = Tools::safeOutput($e->getMessage());
 			return false;
 		}
-
-		####HelperP::log("BookShipment data == " . json_encode($ret));
 
 		// Make sure the result is an array
 		if (!is_array($ret->tracking_numbers))
@@ -675,7 +612,6 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 			Db::getInstance()->Execute('INSERT INTO `'._DB_PREFIX_.'sellstrom_tracking` (`id_order`, `tracking_id`, `product_id`, `unit`, `tracking_number`)
 				VALUES('.(int)$id_order.', '.(int)$t->id.', '.(int)$t->product_id.', '.(int)$t->unit.', \''.pSQL($t->tracking_number).'\')');
 			$id_sellstrom_tracking = Db::getInstance()->Insert_ID();
-			####HelperP::log("Calling GetLabel:: tracking_number == " . $t->tracking_number);
 			try
 			{
 				$ret = $this->_client->GetLabel(array(
@@ -684,9 +620,7 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 									'product_id' => $t->product_id,
 									'package_no' => $t->unit,
 								));
-				####HelperP::log(" .... Label Image == " . $ret->image);
 				file_put_contents(_PS_MODULE_DIR_.'sellstrom/label/'.(int)$id_sellstrom_tracking.'.'.$ret->label_fmt, Tools::file_get_contents($ret->image));
-				####HelperP::log(" .... Successfully created the label image.");
 			}
 			catch (Exception $e)
 			{
@@ -744,7 +678,6 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 					));
 
 			$this->static_cred->login_id = $ret->login_id;
-			$this->static_cred->session_id = $ret->session_id;
 		}
 		catch (Exception $e)
 		{
@@ -764,11 +697,6 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 
 	public function processForm($params)
 	{
-		####HelperP::log("Called processForm... validateSSShipping = " . Tools::isSubmit('validateSSShipping'));
-		####HelperP::log("Called processForm... voidSSShipping = " . Tools::isSubmit('voidSSShipping'));
-		####HelperP::log("Called processForm... refreshTrackingEvent = " . Tools::isSubmit('refreshTrackingEvent'));
-		####HelperP::log("Params ===> " . json_encode($params));
-
 		if (Tools::isSubmit('validateSSShipping'))
 			$this->validateSSShipping($params);
 		if (Tools::isSubmit('voidSSShipping'))
@@ -779,12 +707,8 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 
 	protected function getSSBalance()
 	{
-		####HelperP::log("Called getSSBalance ..");
 		$this->instanciateClient();
 
-		#HelperP::log('PS_LANG_DEFAULT === ' . Configuration::get('PS_LANG_DEFAULT'));
-		####HelperP::log('Current Default === ' . Configuration::get('PS_CURRENCY_DEFAULT'));
-		####HelperP::log('getSSBalance :: credentials == ' . json_encode($this->static_cred));
 		try
 		{
 			$ret = $this->_client->GetAccountBalance(array(
@@ -792,13 +716,9 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 						'account_no' => Configuration::get('SELLSTROM_LOGIN'),
 					));
 			$this->static_cred->login_id = $ret->login_id;
-			$this->static_cred->session_id = $ret->session_id;
-
-			####HelperP::log('Account balance = ' . $ret->balance);
 		}
 		catch (Exception $e)
 		{
-			####HelperP::log('Issue sellstrom balance: '.Tools::safeOutput($e->getMessage()));
 			Logger::addLog('Issue sellstrom balance: '.Tools::safeOutput($e->getMessage()));
 			return 0;
 		}
@@ -828,12 +748,8 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 							'product_id' => $line['product_id'],
 							'package_no' => $line['unit'],
 						));
-				if (isset($this->static_cred->login))
-				{
-					//unset($this->static_cred->login);
-					$this->static_cred->login_id = $res->login_id;
-					$this->static_cred->session_id = $res->session_id;
-				}
+
+				$this->static_cred->login_id = $res->login_id;
 
 				// Get the track events
 				$track_events = $res->track_events;
@@ -841,7 +757,6 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 				if (!$is_indexed)
 					$track_events = array($track_events);
 
-				####HelperP::log("isIndexed == $is_indexed ... trackevents = " . json_encode($track_events));
 				foreach ($track_events as $ret)
 				{
 					$id_tracking_event = Db::getInstance()->getValue('SELECT `id_sellstrom_tracking_event` 
@@ -881,77 +796,36 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 
 	public function hookBackofficeHeader($params)
 	{
-		####HelperP::log("Called hookBackofficeHeader ... params = " . json_encode($params['cart']));
 		if (Tools::strtolower(Tools::getValue('controller')) != 'adminorders' || !Tools::getValue('id_order') || !Tools::isSubmit('vieworder'))
 			return;
 
 		$this->processForm($params);
-		####HelperP::log("After processForm.... errors = " . json_encode($this->_errors));
 
-		$html = '';
-
+		$content_data = array();
 		$balance_amount = (float)$this->getSSBalance();
+		$content_data['balance_amount'] = $balance_amount;
+		$content_data['presta_base_dir'] = __PS_BASE_URI__;
+		$module_dir = __PS_BASE_URI__.'modules/sellstrom';
+		$content_data['module_dir'] = $module_dir;
 
 		if (count($this->_errors))
-			$html .= '<br /><div class="error">'.implode("\n", $this->_errors).'</div>';
+			$content_data['error_message'] = implode("\n", $this->_errors);
 
 		if (count($this->messages))
-			$html .= '<br /><div class="conf">'.implode("\n", $this->messages).'</div>';
-
-		$html .= '<br /><form action="" method="POST"><fieldset>
-				<legend><img src="../img/admin/delivery.gif" alt="">'.$this->l('Sellstrom').'</legend>
-				<label for="SSBalance">'.$this->l('Your Sellstrom balance: ').'</label>
-				<input type="text" readonly=readonly id="SSBalance" value="'.$balance_amount.'" />
-				<a href="###" onclick="javascript:enableAddFundsForm();">
-					<img src="'.__PS_BASE_URI__.'modules/sellstrom/img/add-credit.gif">'.$this->l('Add more credit').'
-				</a>
-				<br/>
-				<br/>
-		';
+			$content_data['info_message'] = implode("\n", $this->messages);
 
 		$user_id  = $this->static_cred->id;
 		$login	= $this->static_cred->login->username;
 		$password = $this->static_cred->login->password;
-		$module_dir = __PS_BASE_URI__.'modules/sellstrom';
 
-		$add_funds_html = '
-		<p>
-		<div id="addFundsMainDiv" style="display:none">
-		<form action="http://54.235.249.8/console/index.php" method="post" name="addFundsForm" id="addFundsForm">
-			<label for="addAmount" id="addFundsLabel">'.$this->l('Add funds ($)').'</label>
-			<div class="margin-form" id="addFundsFormDiv">
-				<input id="addAmount" name="addAmount" type="text" onBlur="javascript:populateFinal();" value="" />
-				<input id="formAction" type="hidden" name="action" value="addFunds" />
-				<input id="apiKey" type="hidden" name="apiKey" value="'.$user_id.'" />
-				<input id="username" type="hidden" name="username" value="'.$login.'" />
-				<input id="userpass" type="hidden" name="password" value="'.$password.'" />
-				<input id="currentPageUrl" type="hidden" name="finalRedirectUrl" />
-				<input id="finalSubmitValue" type="hidden" name="amount" value="" />
-			</div>
-			<label for="addAmount" id="addFundsFinalLabel">'.$this->l('Final amount to be paid (including 2% PayPal processing fee)').'</label>
-			<div id="addFundsFinalDiv">
-				<input id="finalAmount" type="text" disabled value="" />
-			</div>
-			<br/>
-			<div id="addFundsButtonsDiv">
-				<a href="##" onClick="javascript:submitForm()"><img src="'.$module_dir.'/img/paypal_paynow.gif"></a>
-				<a href="##" class="sellstrom-link-ext" onClick="javascript:disableAddFundsForm();resetFields();">'.$this->l('Cancel').'</a>
-			</div>
-		</form>
-		</div>
-
-		<br/>
-		<br/>
-		';
-
-		$html .= $add_funds_html;
+		$content_data['user_id'] = $user_id;
+		$content_data['login'] = $login;
+		$content_data['password'] = $password;
 
 		// Make sure we have the right id_carrier
 		$this->id_carrier = $params['cart']->id_carrier;
 		// Get the shipping cost
 		$ss_cost = (float)$this->getOrderShippingCost($params['cart'], 0);
-
-		####HelperP::log("ss_cost == $ss_cost");
 
 		// Check if the order has been voided
 		$r = Db::getInstance()->getRow('SELECT `id_order`, 
@@ -959,33 +833,28 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 										FROM `'._DB_PREFIX_.'sellstrom_shipment` 
 										WHERE `id_order` = '.(int)Order::getOrderByCartId((int)$params['cart']->id));
 		if ($r && $r['void'])
-			$html .= $this->l('This shipment has been voided.');
+			$content_data['shipment_voided'] = true;
 		else
 		{
+			$content_data['shipment_voided'] = false;
 			if (!$r)
 			{
 				if ($ss_cost <= $balance_amount)
-				{
-					$html .= '<label for="validateSSShipping">'.$this->l('Click here to create a label for shipment: ').'</label>
-<input id="validateSSShipping" type="submit" class="button" name="validateSSShipping" value="'.$this->l('Create Label').'" />';
-				}
+					$content_data['allow_create_label'] = true;
 				else
-					$html .= $this->l('You do not have enough money in your account to create a label for shipment.');
+					$content_data['allow_create_label'] = false;
 			}
 			else
-			{
-				$html .= '<label for="voidSSShipping">'.$this->l('Click here to void shipping').'</label>&nbsp;&nbsp;
-			<input id="voidSSShipping" type="submit" 
-			class="button" 
-			onClick="return confirm(\''.str_replace('\'', '\\\'', $this->l('Are you sure you want to cancel shipping for this order?')).'\');" 
-			name="voidSSShipping" value="'.$this->l('Void').'" />';
-			}
+				$content_data['allow_void_shipment'] = true;
 		}
-		$html .= '</fieldset></form>';
 
 		// If the shipment has been validated, display the labels
 		if ($r)
 		{
+			$content_data['shipment_validated'] = true;
+			$content_data['shipment_labels'] = array();
+			$content_data['tracking_data'] = array();
+
 			$rep = Db::getInstance()->ExecuteS('SELECT st.`id_order`, 
 						st.`id_sellstrom_tracking`, 
 						st.`tracking_number`, 
@@ -998,22 +867,18 @@ $(\'#form .delivery_options\').html($(\'#form .delivery_options\').html() + \''.
 				WHERE st.`id_order` = '.(int)Order::getOrderByCartId((int)$params['cart']->id));
 			if ($rep)
 			{
-				$html .= '<br /><fieldset><legend><img src="../img/admin/delivery.gif" alt="">'.$this->l('Sellstrom - Labels').'</legend>
-<table class="table" style="width: 100%;"><tr><th>'.$this->l('Tracking number').'</th><th>'.$this->l('Unit').'</th><th>'.
-$this->l('Label').'</th></tr>';
 				foreach ($rep as $line)
 				{
-					$html .= '<tr><td>'.Tools::safeOutput($line['tracking_number']).'</td><td>'.(int)$line['unit'].'</td>
-								<td>
-<a target="_blank" 
-	href="'.__PS_BASE_URI__.'modules/sellstrom/label.php?id_tracking='.(int)$line['id_sellstrom_tracking'].
-	'&id_order='.(int)$line['id_order'].'&secure_key='.Tools::safeOutput($line['secure_key']).'" 
-	class="button">'.$this->l('Print').'</a></td></tr>';
+					$content_data['shipment_labels'][] = array(
+						'tracking_number' => Tools::safeOutput($line['tracking_number']),
+						'unit' => (int)$line['unit'],
+						'id_sellstrom_tracking' => (int)$line['id_sellstrom_tracking'],
+						'id_order' => (int)$line['id_order'],
+						'secure_key' => Tools::safeOutput($line['secure_key'])
+					);
 				}
-				$html .= '</table></fieldset>';
 			}
 
-			$html .= '<br /><fieldset><legend><img src="../img/admin/delivery.gif" alt="">'.$this->l('Sellstrom - Tracking').'</legend>';
 			$r = Db::getInstance()->ExecuteS('SELECT `date`, 
 									`tracking_number`, 
 									`event`, 
@@ -1022,138 +887,32 @@ $this->l('Label').'</th></tr>';
 								WHERE `id_order` = '.(int)Order::getOrderByCartId((int)$params['cart']->id));
 			if ($r && count($r))
 			{
-				$html .= '<table class="table" style="width: 100%;"><tr><th>'.$this->l('Date').'</th><th>'.
-$this->l('Tracking number').'</th><th>'.$this->l('Event').'</th><th>'.$this->l('Location').'</th></tr>';
 				foreach ($r as $line)
 				{
-					$html .= '<tr><td>'.Tools::safeOutput(Tools::displayDate($line['date'], null, true)).'</td>
-								<td>'.Tools::safeOutput($line['tracking_number']).'</td>
-								<td>'.Tools::safeOutput($line['event']).'</td>
-								<td>'.Tools::safeOutput($line['location']).'</td></tr>';
+					$content_data['tracking_data'][] = array(
+						'date' => Tools::safeOutput(Tools::displayDate($line['date'], null, true)),
+						'tracking_number' => Tools::safeOutput($line['tracking_number']),
+						'event' => Tools::safeOutput($line['event']),
+						'location' => Tools::safeOutput($line['location'])
+					);
 				}
-				$html .= '</table>';
 			}
-			$html .= '<br /><form action="" method="POST">
-<input type="submit" class="button" name="refreshTrackingEvent" value="'.$this->l('Refresh tracking').'" /></form>';
-			$html .= '</fieldset>';
 		}
 
-		$add_credit_js = "
-<script type='text/javascript'>
-	function resetFields() {
-		document.getElementById('addFundsForm').reset();
-	}
-	function enableAddFundsForm() {
-		document.getElementById('addFundsMainDiv').style.display = 'block';
-	}
-	function disableAddFundsForm() {
-		document.getElementById('addFundsMainDiv').style.display = 'none';
-	}
-	function populateFinal() {
-		var addAmount = document.getElementById('addAmount');
-		var finalAmount = document.getElementById('finalAmount');
-		var finalSubmit = document.getElementById('finalSubmitValue');
-		var finalValue = Number(addAmount.value) + Number(0.02 * addAmount.value);
-		finalAmount.value = '$' + finalValue;
-		finalSubmit.value = finalValue;
-	}
-	function getCurrentPageURL() {
-		var currentUrl = window.location.href;
-		return currentUrl;
-	}
-	function submitForm() {
-		var amount = document.getElementById('addAmount').value;
-		if (!amount) {
-			alert('Add funds amount cannot be empty. Please enter the amount and click on Pay Now.');
-			return false;
-		} else if (amount < 1) {
-			alert('Add funds amount should be more than or equal to $1.');
-			return false;
-		}
+		$this->context->smarty->assign(array(
+			'content_data' => $content_data
+		));
 
-		var finalAmountValue = document.getElementById('finalAmount').value;
-		var c = confirm('You will be now redirected to the PayPal secured payment gateway for the payment of amount (' + 
-						finalAmountValue + 
-						'). Are you sure you want to proceed with the payment?');
-		if (c == true) {
-			document.getElementById('currentPageUrl').value = getCurrentPageURL();
-
-			// Create a dynamic form
-			var f = document.createElement('form');
-			f.setAttribute('method','post');
-			f.setAttribute('action','http://54.235.249.8/console/index.php');
-
-			var amt = document.createElement('INPUT');
-			amt.type = 'hidden';
-			amt.name = 'amount';
-			amt.value = document.getElementById('finalAmount').value;
-			f.appendChild(amt);
-
-			var addamt = document.createElement('INPUT');
-			addamt.type = 'hidden';
-			addamt.name = 'addAmount';
-			addamt.value = document.getElementById('addAmount').value;
-			f.appendChild(addamt);
-
-			var akey = document.createElement('INPUT');
-			akey.type = 'hidden';
-			akey.name = 'apiKey';
-			akey.value = document.getElementById('apiKey').value;
-			f.appendChild(akey);
-
-			var uname = document.createElement('INPUT');
-			uname.type = 'hidden';
-			uname.name = 'username';
-			uname.value = document.getElementById('username').value;
-			f.appendChild(uname);
-
-			var upass = document.createElement('INPUT');
-			upass.type = 'hidden';
-			upass.name = 'password';
-			upass.value = document.getElementById('userpass').value;
-			f.appendChild(upass);
-
-			var purl = document.createElement('INPUT');
-			purl.type = 'hidden';
-			purl.name = 'finalRedirectUrl';
-			purl.value = document.getElementById('currentPageUrl').value;
-			f.appendChild(purl);
-
-			var fact = document.createElement('INPUT');
-			fact.type = 'hidden';
-			fact.name = 'action';
-			fact.value = document.getElementById('formAction').value;
-			f.appendChild(fact);
-
-			document.body.appendChild(f);
-			f.submit();
-		}
-	}
-
-</script>
-
-		";
-
-		$all_contents = $add_credit_js.'
-<script type="text/javascript">
-$(function() {
-$(\'#formAddPayment\').parent().after(\''.str_replace(array('\'', "\n"), array('\\\'', "\\\n"), $html).'\');
-});
-</script>';
-
-		return $all_contents;
+		return $this->display(__FILE__, 'views/templates/admin/hookbackoffice.tpl');
 	}
 
 	public function getOrderShippingCost($cart, $shipping_cost)
 	{
-		##HelperP::log('Called getOrderShippingCost...' . $shipping_cost);
-		####HelperP::log('id address delivery == ' . $this->context->cart->id_address_delivery);
 		// Make sure the cache is up to date
 		if (!$this->getCacheQuotes())
 		{
 			// Load the delivery address, if fail, return.
 			$addr = new Address($this->context->cart->id_address_delivery);
-			####HelperP::log('Address === ' . json_encode($addr));
 
 			if (!Validate::isLoadedObject($addr))
 				false;
@@ -1175,13 +934,11 @@ $(\'#formAddPayment\').parent().after(\''.str_replace(array('\'', "\n"), array('
 
 	public function getOrderShippingCostExternal($params)
 	{
-		####HelperP::log('Called getOrderShippingCostExternal ...');
 		return $this->getOrderShippingCost($params, null);
 	}
 
 	public function installExternalCarrier(SSQuote $quote)
 	{
-		##HelperP::log("\nCalled installExternalCarrier ... Quote ===> " . gettype($quote) . " ... " . json_encode($quote));
 		$carrier = new Carrier();
 		$carrier->name = 'Sellstrom - '.$quote->carrier.' '.$quote->service;
 //		$carrier->delay = $quote->transit_time;
@@ -1202,16 +959,11 @@ $(\'#formAddPayment\').parent().after(\''.str_replace(array('\'', "\n"), array('
 		$carrier_sql = 'SELECT `id_carrier` FROM `'._DB_PREFIX_.'carrier` 
 						WHERE `active` = 1 AND `deleted` = 0 AND `name` = \''.$carrier->name.'\'';
 		$existing_carrier_id = Db::getInstance()->getValue($carrier_sql);
-		##HelperP::log("installExternalCarrier == $carrier_sql");
-		##HelperP::log("installExternalCarrier == carrier id = $existing_carrier_id");
 		if ($existing_carrier_id)
 			return $existing_carrier_id;
 
-		##HelperP::log("Carrier details ==> " . json_encode($carrier));
-
 		if ($carrier->add())
 		{
-			##HelperP::log("Going to insert carrier === " . $carrier->name);
 			$this->new_carriers[] = (int)$carrier->id;
 
 			$groups = Group::getGroups(true);
@@ -1275,8 +1027,6 @@ $(\'#formAddPayment\').parent().after(\''.str_replace(array('\'', "\n"), array('
 			// Copy Logo
 			if (!copy(dirname(__FILE__).'/img/'.$logo, _PS_SHIP_IMG_DIR_.'/'.(int)$carrier->id.'.jpg'))
 				return false;
-
-			##HelperP::log('carrier id ===> ' . $carrier->id);
 
 			// Return ID Carrier
 			return (int)$carrier->id;

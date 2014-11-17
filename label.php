@@ -28,40 +28,43 @@
 include(dirname(__FILE__).'/../../config/config.inc.php');
 include(dirname(__FILE__).'/../../init.php');
 
-$id_tracking = Db::getInstance()->getValue('SELECT st.`id_sellstrom_tracking`
-				FROM `'._DB_PREFIX_.'sellstrom_tracking` st
-				LEFT JOIN `'._DB_PREFIX_.'orders` o ON (st.`id_order` = o.`id_order`)
-				WHERE st.`id_order` = '.(int)Tools::getValue('id_order').'
-				AND o.`secure_key` = \''.pSQL(Tools::getValue('secure_key')).'\'
-				AND st.`id_sellstrom_tracking` = '.(int)Tools::getValue('id_tracking'));
-if (!$id_tracking)
-	echo 'The label haven\'t been found or the secure_key is invalid.';
-else
+if (Tools::getIsset('id_order') && Tools::getIsset('secure_key') && Tools::getIsset('id_tracking'))
 {
-	# Get the file with extension
-	$file_match	= glob(dirname(__FILE__).'/label/'.(int)$id_tracking.'.*');
-
-	if (is_array($file_match))
+	$id_tracking = Db::getInstance()->getValue('SELECT st.`id_sellstrom_tracking`
+					FROM `'._DB_PREFIX_.'sellstrom_tracking` st
+					LEFT JOIN `'._DB_PREFIX_.'orders` o ON (st.`id_order` = o.`id_order`)
+					WHERE st.`id_order` = '.(int)Tools::getValue('id_order').'
+					AND o.`secure_key` = \''.pSQL(Tools::getValue('secure_key')).'\'
+					AND st.`id_sellstrom_tracking` = '.(int)Tools::getValue('id_tracking'));
+	if (!$id_tracking)
+		echo 'The label haven\'t been found or the secure_key is invalid.';
+	else
 	{
-		$file_name	= $file_match[0];
-		$file_ext	= Tools::strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+		# Get the file with extension
+		$file_match	= glob(dirname(__FILE__).'/label/'.(int)$id_tracking.'.*');
+
+		if (is_array($file_match))
+		{
+			$file_name	= $file_match[0];
+			$file_ext	= Tools::strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+		}
+
+		if ($file_ext == 'jpg')		header('Content-Type: image/jpeg');
+		elseif ($file_ext == 'gif')	header('Content-Type: image/gif');
+		elseif ($file_ext == 'png')	header('Content-Type: image/png');
+		elseif ($file_ext == 'pdf')	header('Content-Type: application/pdf');
+		else 						header('Content-Type: application/octet-stream');
+
+		# Force download
+		header('Content-Description: File Transfer');
+		header('Content-Disposition: attachment; filename='.basename($file_name));
+		header('Expires: 0');
+		header('Cache-Control: must-revalidate');
+		header('Pragma: public');
+		header('Content-Length: '.filesize($file_name));
+		ob_clean();
+		flush();
+		readfile($file_name);
+		exit;
 	}
-
-	if ($file_ext == 'jpg')		header('Content-Type: image/jpeg');
-	elseif ($file_ext == 'gif')	header('Content-Type: image/gif');
-	elseif ($file_ext == 'png')	header('Content-Type: image/png');
-	elseif ($file_ext == 'pdf')	header('Content-Type: application/pdf');
-	else 						header('Content-Type: application/octet-stream');
-
-	# Force download
-	header('Content-Description: File Transfer');
-	header('Content-Disposition: attachment; filename='.basename($file_name));
-	header('Expires: 0');
-	header('Cache-Control: must-revalidate');
-	header('Pragma: public');
-	header('Content-Length: '.filesize($file_name));
-	ob_clean();
-	flush();
-	readfile($file_name);
-	exit;
 }
