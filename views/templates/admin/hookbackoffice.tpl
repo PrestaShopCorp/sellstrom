@@ -148,10 +148,9 @@
 
 	$(function() {
 		var contentData = {/literal}{$content_data|json_encode}{literal};
-		var htmlContent = '<div class="panel">';
-		htmlContent += '<div class="panel-heading">';
-		htmlContent += '	<legend><img src="'+contentData.presta_base_dir+'/img/admin/delivery.gif" alt="">&nbsp;Sellstrom</legend>';
-		htmlContent += '</div>';
+		var psVersion = contentData.ps_version;
+		var showPanel = psVersion.match(/^1.5/) ? false : true;
+		var htmlContent = '<br/>';
 
 		if (contentData.error_message) {
 			htmlContent += '<div class="isa_error" id="sellstromErrorMessage">'+contentData.error_message+'</div>';
@@ -161,12 +160,26 @@
 			htmlContent += '<div class="isa_info"  id="sellstromInfoMessage">'+contentData.info_message+'</div>';
 		}
 
+		if (showPanel) {
+			htmlContent += '<div class="panel">';
+			htmlContent += '<div class="panel-heading">';
+		} else {
+			htmlContent += '<fieldset>';
+		}
+
+		htmlContent += '	<legend><img src="'+contentData.presta_base_dir+'/img/admin/delivery.gif" alt="">&nbsp;Sellstrom</legend>';
+
+		if (showPanel)
+			htmlContent += '</div>';
+
 		htmlContent += '<form action="" method="POST">';
 		htmlContent += '<fieldset>';
 		htmlContent += '<div class="panel">';	
 		htmlContent += '	<label for="SSBalance">Your Sellstrom balance:</label>';
 		htmlContent += '	<input type="text" readonly=readonly id="SSBalance" value="'+contentData.balance_amount+'" />';
-		htmlContent += '	<a href="###" onclick="javascript:enableAddFundsForm();">';
+		if (!showPanel)
+			htmlContent += '<br/>';
+		htmlContent += '	<a href="###" onclick="javascript:enableAddFundsForm();" style="color:#00aff0;text-decoration:none;font-size:12px;">';
 		htmlContent += '		<img src="'+contentData.module_dir+'/img/add-credit.gif">Add more credit';
 		htmlContent += '	</a>';
 		htmlContent += '	<br/><br/>';
@@ -193,14 +206,18 @@
 		htmlContent += '				<a href="##" onClick="javascript:submitForm()">';
 		htmlContent += '					<img src="'+contentData.module_dir+'/img/paypal_paynow.gif">';
 		htmlContent += '				</a>';
-		htmlContent += '				<a href="##" class="sellstrom-link-ext" onClick="javascript:disableAddFundsForm();resetFields();">';
+		htmlContent += '				<a href="##" class="sellstrom-link-ext" onClick="javascript:disableAddFundsForm();resetFields();"';
+		htmlContent += '					style="color:#00aff0;text-decoration:none;font-size:12px;">';
 		htmlContent += '					Cancel';
 		htmlContent += '				</a>';
 		htmlContent += '			</div>';
+		if (!showPanel)
+			htmlContent += '<br/>';
+	
 		htmlContent += '		</form>';
 		htmlContent += '	</div>';
 		htmlContent += '</div>';
-	
+
 		if (contentData.shipment_voided)
 		{
 			htmlContent += '<div class="panel">';	
@@ -298,7 +315,11 @@
 			htmlContent += '</fieldset>';
 			htmlContent += '</div>';
 		}
-		htmlContent += '</div>';
+
+		if (showPanel)
+			htmlContent += '</div>';
+		else
+			htmlContent += '</fieldset>';
 
 		$('#formAddPayment').parent().after(htmlContent);
 	});

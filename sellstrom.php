@@ -753,7 +753,11 @@ class Sellstrom extends CarrierModule
 
 				// Get the track events
 				$track_events = $res->track_events;
-				$is_indexed = array_values($track_events) === $track_events;
+				if (is_array($track_events))
+					$is_indexed = array_values($track_events) === $track_events;
+				else
+					$is_indexed = false;
+
 				if (!$is_indexed)
 					$track_events = array($track_events);
 
@@ -802,6 +806,7 @@ class Sellstrom extends CarrierModule
 		$this->processForm($params);
 
 		$content_data = array();
+		$content_data['ps_version'] = _PS_VERSION_;
 		$balance_amount = (float)$this->getSSBalance();
 		$content_data['balance_amount'] = $balance_amount;
 		$content_data['presta_base_dir'] = __PS_BASE_URI__;
