@@ -164,13 +164,14 @@
 			htmlContent += '<div class="panel">';
 			htmlContent += '<div class="panel-heading">';
 		} else {
-			htmlContent += '<fieldset>';
+			htmlContent += '<fieldset><legend>';
 		}
 
-		htmlContent += '	<legend><img src="'+contentData.presta_base_dir+'/img/admin/delivery.gif" alt="">&nbsp;Sellstrom</legend>';
+		htmlContent += '	<img src="'+contentData.presta_base_dir+'img/admin/delivery.gif" alt="">&nbsp;Sellstrom';
 
 		if (showPanel)
 			htmlContent += '</div>';
+		else htmlContent += '</legend>';
 
 		htmlContent += '<form action="" method="POST">';
 		htmlContent += '<fieldset>';
@@ -256,7 +257,7 @@
 			htmlContent += '<div class="panel">';	
 			htmlContent += '<fieldset>';
 			htmlContent += '	<div class="panel-heading">';
-			htmlContent += '		<img src="'+contentData.presta_base_dir+'/img/admin/delivery.gif" alt="">';
+			htmlContent += '		<img src="'+contentData.presta_base_dir+'img/admin/delivery.gif" alt="">';
 			htmlContent += '		Sellstrom - Labels';
 			htmlContent += '	</div>';
 			htmlContent += '	<div class="table-responsive">';
@@ -286,7 +287,7 @@
 			htmlContent += '<div class="panel">';	
 			htmlContent += '<fieldset>';
 			htmlContent += '	<div class="panel-heading">';
-			htmlContent += '		<img src="'+contentData.presta_base_dir+'/img/admin/delivery.gif" alt="">';
+			htmlContent += '		<img src="'+contentData.presta_base_dir+'img/admin/delivery.gif" alt="">';
 			htmlContent += '		Sellstrom - Tracking';
 			htmlContent += '	</div>';
 			htmlContent += '	<div class="table-responsive">';
