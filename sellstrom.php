@@ -39,7 +39,7 @@ class Sellstrom extends CarrierModule
 	{
 	$this->name = 'sellstrom';
 	$this->tab = 'shipping_logistics';
-	$this->version = '0.1.1';
+	$this->version = '0.1.2';
 	$this->author = 'Sellstrom Global Shipping';
 	$this->need_instance = 1;
 
@@ -962,7 +962,7 @@ class Sellstrom extends CarrierModule
 
 		# Check whether the carrier already exists. If so, just return the carrier id.
 		$carrier_sql = 'SELECT `id_carrier` FROM `'._DB_PREFIX_.'carrier` 
-						WHERE `active` = 1 AND `deleted` = 0 AND `name` = \''.$carrier->name.'\'';
+						WHERE `active` = 1 AND `deleted` = 0 AND `name` = \''.pSQL($carrier->name).'\'';
 		$existing_carrier_id = Db::getInstance()->getValue($carrier_sql);
 		if ($existing_carrier_id)
 			return $existing_carrier_id;
