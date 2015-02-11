@@ -51,10 +51,28 @@
 	font-size:2em;
 	vertical-align:middle;
 }
+.white_btn_gray {
+    background-color: #ffffff;
+    border: 1px solid #777777;
+    color: #777777;
+    font-weight: bold;
+}   
+.white_btn_product {
+    background-color: #ffffff;
+    border: 1px solid #777777;
+    color: #ff9955;
+    font-weight: bold;
+    margin-left: 26px;
+}   
+.watermarked {
+    color: #aaaaaa;
+}
 </style>
 
 <script type='text/javascript'>
 	{literal}
+	var contentData;
+
     function resetFields() {
 		if (document.getElementById('addFundsForm'))
 	        document.getElementById('addFundsForm').reset();
@@ -69,7 +87,7 @@
         var addAmount = document.getElementById('addAmount');
         var finalAmount = document.getElementById('finalAmount');
         var finalSubmit = document.getElementById('finalSubmitValue');
-        var finalValue = Number(addAmount.value) + Number(0.02 * addAmount.value);
+        var finalValue = Number(addAmount.value); // + Number(0.02 * addAmount.value);
         finalAmount.value = '$' + finalValue;
         finalSubmit.value = finalValue;
     }
@@ -146,8 +164,191 @@
         }
     }
 
+	function restCustomCodeTableRows() {
+	    var j = document.getElementById("txtProductLineValue").value;
+	    for ( var i = 1; i < j; i++) {
+	        var row = document.getElementById("id");
+	        row.parentNode.removeChild(row);
+	    }  
+	    document.getElementById("txtProductLineValue").value = 1;
+		document.getElementById("txtProductDescription1").value = '';
+		document.getElementById("txtProductCode1").value = '';
+		document.getElementById("txtProductValue1").value = '';
+	}
+
+	function displayDocumentsCustoms() {
+	    var radio_button_value = $('input[name=createInvoicerblPackageContents]:radio:checked').val();
+	    
+	    if(radio_button_value=="doc") {
+	        $("#create_Invoice_DocumentDescription").show();
+	        $("#create_Invoice_TolValCustoms").show();
+	        $("#create_Invoice_Insurance").show();
+	        $("#create_Invoice_ShipmentPurpose").hide();
+	        $("#create_Invoice_CustomCodeTable").hide();
+	    } else {
+	        $("#create_Invoice_DocumentDescription").hide();            
+	        $("#create_Invoice_TolValCustoms").hide();
+	        $("#create_Invoice_ShipmentPurpose").show();
+	        $("#create_Invoice_Insurance").show();
+	        $("#create_Invoice_CustomCodeTable").show();
+	        restCustomCodeTableRows();
+	    }
+	}
+
+	function submitCreateInvoice() {
+		console.log(contentData);
+		var productsTableRows = document.getElementById('ciCustomCodeTable').rows.length - 2;
+		var docChecked = document.getElementById('create_Invoice_rblPackageContents_0').checked;
+		var comChecked = document.getElementById('create_Invoice_rblPackageContents_1').checked;
+		var docDescription = $('#create_Invoice_drpDocumentDescription').val();
+		var shipPurpose = $('#create_Invoice_drpShipmentPurpose').val();
+		var totalPackages = contentData.products.length;
+		var totalWeight = 0;
+		for (var w=0;w<totalPackages;w++) {
+			totalWeight += contentData.products[w].weight
+		}
+
+		console.log('productsTableRows = ' + productsTableRows);
+		console.log('docChecked = ' + docChecked);
+		console.log('comChecked = ' + comChecked);
+
+		if (comChecked) {
+			var c = validateInputText();
+			if (c == 0)
+				return false;
+		} else {
+			var docValue = $.trim($('#create_Invoice_txtDeclaredValue').val());
+			$('#create_Invoice_txtDeclaredValue').val(docValue);
+			if (docValue == '') {
+	        	alert("Product/Document value must be filled out");
+	        	$("#errorPV").show();
+	        	$("#errorPD").hide();
+				return false;
+			}
+		}
+
+		var products = new Array();
+		if (comChecked) {
+			for (var p = 1; p <= productsTableRows; p++) {
+				products.push({
+					'product_desc': '['+shipPurpose+'] '+$('#txtProductDescription'+p).val(),
+					'product_code': $('#txtProductCode'+p).val(),
+					'product_value': $('#txtProductValue'+p).val()
+				});
+			}
+		}
+		else {
+			products.push({
+				'product_desc': '[Documents] '+docDescription,
+				'product_code': '',
+				'product_value': $('#create_Invoice_txtDeclaredValue').val()
+			});
+		}
+
+		console.log(products);
+
+		$.ajax({
+			url: contentData.module_dir+'/createInvoice.php',
+			method: 'post',
+			beforeSend: function() {
+				$('#ajaxLoaderImg').show();
+			},
+			complete: function() {
+				$('#ajaxLoaderImg').hide();
+			},
+			data: {
+				'id_order': contentData.id_order,
+				'shipper_state': contentData.shipper_address.state,
+				'shipper_country': contentData.shipper_address.country,
+				'tracking_number': contentData.shipment_labels[0].tracking_number,
+				'custom_products': JSON.stringify(products),
+				'total_packages': totalPackages,
+				'total_weight': totalWeight
+			},
+			dataType: 'json',
+			success: function(response) {
+				console.log(response);
+				window.open(contentData.module_dir+'/invoices/'+response.filename, '_blank');
+			},
+			error: function(response) {
+			}
+		});
+	}
+
+	function cancelCreateInvoice() {
+		document.getElementById("create_Invoice").style.display = "none";
+	}
+
+	function createInvoice() {
+	    document.getElementById("create_Invoice").style.display = "block";
+	    $("#create_Invoice_DocumentDescription").show();
+	    $("#create_Invoice_TolValCustoms").show();
+	    $("#create_Invoice_Insurance").show();
+	    $("#create_Invoice_ShipmentPurpose").hide();
+	    $("#create_Invoice_CustomCodeTable").hide();
+	    document.getElementById("create_Invoice_rblPackageContents_0").checked = true;
+	    $("#errorPD").hide();
+	    $("#errorPV").hide();
+	    restCustomCodeTableRows();
+	}
+
+	function addNewProductLine() {
+	    // check for blank first
+	    // if not blank then add new row
+	    var c = validateInputText();
+	    //alert(c);
+	    if ( c == 1 ){
+	        $("#errorPD").hide();
+	        $("#errorPV").hide();
+	        var j = document.getElementById("txtProductLineValue").value;
+	        j++; 
+	        document.getElementById("txtProductLineValue").value = j;
+	        var x = document.getElementById("ciCustomCodeTable").rows.length;
+	        x--; 
+	        var table = document.getElementById("ciCustomCodeTable");
+	        var row = table.insertRow(x);
+	        row.id = "id";
+	        var cell1 = row.insertCell(0);
+	        var cell2 = row.insertCell(1);
+	        var cell3 = row.insertCell(2);
+	        cell1.innerHTML = " <input id='txtProductDescription"+j+"' type='text' style='background-color:white;' name='txtProductDescription"+j+"'> ";
+	        cell2.innerHTML = " <input id='txtProductCode"+j+"' type='text' class='watermarked' style='background-color:white;' name='txtProductCode"+j+"'> ";
+	        cell3.innerHTML = " <input id='txtProductValue"+j+"' type='text' style='background-color:white;width:75px;' name='txtProductValue"+j+"'> ";
+	    }
+	}
+
+	function validateInputText() {
+	    var i = document.getElementById("txtProductLineValue").value;
+	    var x = document.getElementById("txtProductDescription"+i).value;
+	    var y = document.getElementById("txtProductValue"+i).value;
+	    if ((x==null || x=="") && (y==null || y=="")) {
+	        alert("Product Description and Product value must be filled out");
+	        $("#errorPD").show();
+	        $("#errorPV").show();
+	        return 0;
+	    } else if (y==null || y=="") {
+	        alert("Product/Document value must be filled out");
+	        $("#errorPV").show();
+	        $("#errorPD").hide();
+	        return 0;
+	    } else if (x==null || x=="") {
+	        alert("Product Description must be filled out");
+	        $("#errorPD").show();
+	        $("#errorPV").hide();
+	        return 0;
+	    } else {
+	        return 1;
+	    }
+	}
+
+	function openCustomCodeURL() {
+		var win = window.open('http://hts.usitc.gov/', '_blank');
+		win.focus();
+	}
+
 	$(function() {
-		var contentData = {/literal}{$content_data|json_encode}{literal};
+		contentData = {/literal}{$content_data|json_encode}{literal};
+		console.log(contentData);
 		var psVersion = contentData.ps_version;
 		var showPanel = psVersion.match(/^1.5/) ? false : true;
 		var htmlContent = '<br/>';
@@ -195,12 +396,7 @@
 		htmlContent += '				<input id="userpass" type="hidden" name="password" value="'+contentData.password+'" />';
 		htmlContent += '				<input id="currentPageUrl" type="hidden" name="finalRedirectUrl" />';
 		htmlContent += '				<input id="finalSubmitValue" type="hidden" name="amount" value="" />';
-		htmlContent += '			</div>';
-		htmlContent += '			<label for="addAmount" id="addFundsFinalLabel">';
-		htmlContent += '				Final amount to be paid (including 2% PayPal processing fee)';
-		htmlContent += '			</label>';
-		htmlContent += '			<div id="addFundsFinalDiv">';
-		htmlContent += '				<input id="finalAmount" type="text" disabled value="" />';
+		htmlContent += '				<input id="finalAmount" type="hidden" value="" />';
 		htmlContent += '			</div>';
 		htmlContent += '			<br/>';
 		htmlContent += '			<div id="addFundsButtonsDiv">';
@@ -230,9 +426,181 @@
 			if (contentData.allow_void_shipment)
 			{	
 				htmlContent += '<div class="panel">';	
-				htmlContent += '	<label for="voidSSShipping">Click here to void shipping</label>&nbsp;&nbsp;';
+				htmlContent += '	<label for="voidSSShipping">Click here to void shipping:</label>&nbsp;&nbsp;';
 				htmlContent += '	<input id="voidSSShipping" type="submit" class="button" name="voidSSShipping" value="Void"';
-				htmlContent += '		onClick="return confirm(\'Are you sure you want to cancel shipping for this order?\');" />';
+				htmlContent += '		onClick="return confirm(\'Are you sure you want to cancel shipping for this order?\');" />&nbsp;&nbsp;';
+				htmlContent += '	<a href="###" onclick="javascript:createInvoice();">Create Invoice</a>';
+				htmlContent += '</div>';
+
+				// Create Invoice
+				htmlContent += '<div id="create_Invoice" class="panel" style="display:none;">';
+				htmlContent += '<fieldset>';
+				htmlContent += '	<div class="panel-heading">';
+				htmlContent += '		<img src="'+contentData.presta_base_dir+'img/admin/delivery.gif" alt="">';
+				htmlContent += '		Sellstrom - Create Invoice';
+				htmlContent += '	</div>';
+				htmlContent += '	<table id="create_Invoice_rblPackageContents" border="0">';
+				htmlContent += '		<tr>';
+				htmlContent += '			<td colspan="3">';
+				htmlContent += '				<div id="errorPD" style="color: Red; display: inline;">* Product description is required</div>';
+				htmlContent += '			</td>';
+				htmlContent += '		</tr>';
+				htmlContent += '		<tr>';
+				htmlContent += '			<td colspan="3">';
+				htmlContent += '				<div id="errorPV" style="color: Red; display: inline;">* Product/Document value is required</div>';
+				htmlContent += '			</td>';
+				htmlContent += '		</tr>';
+				htmlContent += '		<tr>';
+				htmlContent += '			<td style="font-weight:bold;width:175px">';
+				htmlContent += '				<span id="create_Invoice_PackageContents">Package Contents</span>';
+				htmlContent += '			</td>';
+				htmlContent += '			<td style="width:95px;">';
+				htmlContent += '				<input id="create_Invoice_rblPackageContents_0" name="createInvoicerblPackageContents" value="doc" ';
+				htmlContent += '					type="radio" checked onclick="javascript:displayDocumentsCustoms();">';
+				htmlContent += '				<label for="create_Invoice_rblPackageContents_0">Documents</label>';
+				htmlContent += '			</td>';
+				htmlContent += '			<td>';
+				htmlContent += '				<input id="create_Invoice_rblPackageContents_1" name="createInvoicerblPackageContents" value="com" ';
+				htmlContent += '					type="radio" onclick="javascript:displayDocumentsCustoms();" >';
+				htmlContent += '				<label for="create_Invoice_rblPackageContents_1">Products</label>';
+				htmlContent += '			</td>';
+				htmlContent += '		</tr>';
+				htmlContent += '	</table>';
+				htmlContent += '</fieldset>';
+				htmlContent += '<div id="create_Invoice_DocumentDescription">';
+				htmlContent += '    <table>';
+				htmlContent += '        <tr> ';
+				htmlContent += '            <td style="font-weight: bold;width:175px"><span id="create_Invoice_lblDocumentDescription">Document Description</span></td>';
+				htmlContent += '            <td><select name="createInvoicedrpDocumentDescription" id="create_Invoice_drpDocumentDescription">';
+				htmlContent += '            <option selected="selected" value="No Customs Value">No Customs Value</option>';
+				htmlContent += '            <option value="Accounting Documents">Accounting Documents</option>';
+				htmlContent += '            <option value="Analysis Reports">Analysis Reports</option>';
+				htmlContent += '            <option value="Applications (Completed)">Applications (Completed)</option>';
+				htmlContent += '            <option value="Bank Statements">Bank Statements</option>';
+				htmlContent += '            <option value="Bid Quotations">Bid Quotations</option>';
+				htmlContent += '            <option value="Bills of Sale">Bills of Sale</option>';
+				htmlContent += '            <option value="Birth Certificates">Birth Certificates</option>';
+				htmlContent += '            <option value="Bonds">Bonds</option>';
+				htmlContent += '            <option value="Business Correspondence">Business Correspondence</option>';
+				htmlContent += '            <option value="Checks (Completed)">Checks (Completed)</option>';
+				htmlContent += '            <option value="Claim Files">Claim Files</option>';
+				htmlContent += '            <option value="Closing Statements">Closing Statements</option>';
+				htmlContent += '            <option value="Conference Reports">Conference Reports</option>';
+				htmlContent += '            <option value="Contracts">Contracts</option>';
+				htmlContent += '            <option value="Cost Estimates">Cost Estimates</option>';
+				htmlContent += '            <option value="Court Transcripts">Court Transcripts</option>';
+				htmlContent += '            <option value="Credit Applications">Credit Applications</option>';
+				htmlContent += '            <option value="Data Sheets">Data Sheets</option>';
+				htmlContent += '            <option value="Deeds">Deeds</option>';
+				htmlContent += '            <option value="Employment Papers">Employment Papers</option>';
+				htmlContent += '            <option value="Escrow Instructions">Escrow Instructions</option>';
+				htmlContent += '            <option value="Export Papers">Export Papers</option>';
+				htmlContent += '            <option value="Financial Statements">Financial Statements</option>';
+				htmlContent += '            <option value="Immigration Papers">Immigration Papers</option>';
+				htmlContent += '            <option value="Income Statements">Income Statements</option>';
+				htmlContent += '            <option value="Insurance Documents">Insurance Documents</option>';
+				htmlContent += '            <option value="Interoffice Memos">Interoffice Memos</option>';
+				htmlContent += '            <option value="Inventory Reports">Inventory Reports</option>';
+				htmlContent += '            <option value="Invoices (Completed)">Invoices (Completed)</option>';
+				htmlContent += '            <option value="Leases">Leases</option>';
+				htmlContent += '            <option value="Legal Documents">Legal Documents</option>';
+				htmlContent += '            <option value="Letter of Credit Packets">Letter of Credit Packets</option>';
+				htmlContent += '            <option value="Letters and Cards">Letters and Cards</option>';
+				htmlContent += '            <option value="Loan Documents">Loan Documents</option>';
+				htmlContent += '            <option value="Marriage Certificates">Marriage Certificates</option>';
+				htmlContent += '            <option value="Medical Records">Medical Records</option>';
+				htmlContent += '            <option value="Office Records">Office Records</option>';
+				htmlContent += '            <option value="Operating Agreements">Operating Agreements</option>';
+				htmlContent += '            <option value="Patent Applications">Patent Applications</option>';
+				htmlContent += '            <option value="Permits">Permits</option>';
+				htmlContent += '            <option value="Photocopies">Photocopies</option>';
+				htmlContent += '            <option value="Proposals">Proposals</option>';
+				htmlContent += '            <option value="Prospectuses">Prospectuses</option>';
+				htmlContent += '            <option value="Purchase Orders">Purchase Orders</option>';
+				htmlContent += '            <option value="Quotations">Quotations</option>';
+				htmlContent += '            <option value="Reservation Confirmation">Reservation Confirmation</option>';
+				htmlContent += '            <option value="Resumes">Resumes</option>';
+				htmlContent += '            <option value="Sales Agreements">Sales Agreements</option>';
+				htmlContent += '            <option value="Sales Reports">Sales Reports</option>';
+				htmlContent += '            <option value="Shipping Documents">Shipping Documents</option>';
+				htmlContent += '            <option value="Statements/Reports">Statements/Reports</option>';
+				htmlContent += '            <option value="Statistical Data">Statistical Data</option>';
+				htmlContent += '            <option value="Stock Information">Stock Information</option>';
+				htmlContent += '            <option value="Tax Papers">Tax Papers</option>';
+				htmlContent += '            <option value="Trade Confirmation">Trade Confirmation</option>';
+				htmlContent += '            <option value="Transcripts">Transcripts</option>';
+				htmlContent += '            <option value="Warranty Deeds">Warranty Deeds</option>';
+				htmlContent += '        </select></td>';
+				htmlContent += '        </tr>';
+				htmlContent += '    </table> ';
+				htmlContent += '</div>';
+				htmlContent += '<div id="create_Invoice_ShipmentPurpose">';
+				htmlContent += '    <table>';
+				htmlContent += '    <tr>';  
+				htmlContent += '            <td style="font-weight: bold;width:175px"><span id="create_Invoice_lblShipmentPurpose">Shipment Purpose</span></td>';
+				htmlContent += '            <td><select name="createInvoicedrpShipmentPurpose" id="create_Invoice_drpShipmentPurpose">';
+				htmlContent += '            <option selected="selected" value="Commercial">Commercial</option>';
+				htmlContent += '            <option value="Gift">Gift</option>';
+				htmlContent += '            <option value="Sample">Sample</option>';
+				htmlContent += '            <option value="Return and Repair">Return and Repair</option>';
+				htmlContent += '            <option value="Personal Effects">Personal Effects</option>';
+				htmlContent += '            <option value="Personal Use">Personal Use</option>';
+				htmlContent += '            </select></td>';
+				htmlContent += '    </tr>';
+				htmlContent += '    </table>';
+				htmlContent += '</div>';
+				htmlContent += '<div id="create_Invoice_TolValCustoms">';
+				htmlContent += '    <table>';
+				htmlContent += '        <tr>';
+				htmlContent += '            <td style="font-weight: bold;width:175px">Total Value for Customs (USD)</td>';
+				htmlContent += '            <td><input name="createInvoicetxtDeclaredValue" value="" maxlength="10" id="create_Invoice_txtDeclaredValue"';
+				htmlContent += '					style="width:80px;" type="text"></td>';
+				htmlContent += '        </tr>';
+				htmlContent += '    </table>';
+				htmlContent += '</div>';
+				htmlContent += '<div id="create_Invoice_CustomCodeTable" style="margin-top:10px;">';
+				htmlContent += '    <table id="ciCustomCodeTable" class="table">';
+				htmlContent += '		<thead>';
+				htmlContent += '        <tr>';
+				htmlContent += '            <th>Description Of Content</th>';
+				htmlContent += '            <th>Code</th>';
+				htmlContent += '            <th>Value (USD)</th>';
+				htmlContent += '        </tr>';
+				htmlContent += '		</thead>';
+				htmlContent += '        <tr id="pnlProduct1">';
+				htmlContent += '            <td>';
+				htmlContent += '                <input id="txtProductDescription1" type="text" style="background-color:white;"';
+				htmlContent += '					name="txtProductDescription1">';
+				htmlContent += '            </td>';
+				htmlContent += '            <td>';
+				htmlContent += '                <input id="txtProductCode1" type="text" class="watermarked" style="background-color:white;"';
+				htmlContent += '					name="txtProductCode1">';
+				htmlContent += '            </td>';
+				htmlContent += '            <td>';
+				htmlContent += '                <input id="txtProductValue1" type="text" style="background-color:white;width:75px;" name="txtProductValue1">';
+				htmlContent += '            </td>';
+				htmlContent += '        </tr>';
+				htmlContent += '        <tr>';
+				htmlContent += '            <td colspan="3" style="text-align:left;">';
+				htmlContent += '                <input id="btnProductAdd1" type="button" class="white_btn_product" style="width:100px;" value="Add Row"';
+				htmlContent += '					name="btnProductAdd1" onclick="addNewProductLine()">';
+				htmlContent += '                <input id="btnProductLookup1" type="button" class="white_btn_gray"  style="width:200px;"';
+				htmlContent += '					value="Find Customs Comm. Code" name="btnProductLookup1" onclick="openCustomCodeURL()">';
+				htmlContent += '                <input id="txtProductLineValue" value="1" type="hidden" name="txtProductLineValue">';
+				htmlContent += '                <input id="btnProductAdd1" type="button" class="white_btn_product" style="width:100px;" value="Reset"';
+				htmlContent += '					name="btnProductAdd1" onclick="restCustomCodeTableRows()">';
+				htmlContent += '            </td>';
+				htmlContent += '        </tr>';
+				htmlContent += '    </table>';
+				htmlContent += '</div>';
+				htmlContent += '<div style="margin-top:20px;">';
+				htmlContent += '	<button type="button" onClick="javascript:submitCreateInvoice();"';
+				htmlContent += '			class="btn btn-primary">Create Invoice</button>';
+				htmlContent += '    &nbsp;&nbsp;';
+				htmlContent += '    <button type="button" onClick="javascript:cancelCreateInvoice();" class="btn btn-primary">Cancel</button>';
+				htmlContent += '	&nbsp;&nbsp;';
+				htmlContent += '    <img src="'+contentData.module_dir+'/img/ajax-loader.gif" style="height:20px;" id="ajaxLoaderImg">';
+				htmlContent += '</div>';
 				htmlContent += '</div>';
 			}
 			else
@@ -323,6 +691,7 @@
 			htmlContent += '</fieldset>';
 
 		$('#formAddPayment').parent().after(htmlContent);
+		$('#ajaxLoaderImg').hide();
 	});
 	{/literal}
 </script>

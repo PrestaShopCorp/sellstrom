@@ -159,10 +159,7 @@
 				<input id="userpass" type="hidden" name="password" value="{$password|escape:'htmlall':'UTF-8'}" />
 				<input id="currentPageUrl" type="hidden" name="finalRedirectUrl" />
 				<input id="finalSubmitValue" type="hidden" name="amount" value="" />
-			</div>
-			<label for="addAmount" id="addFundsFinalLabel">{l s='Final amount to be paid (including 2% PayPal processing fee)' mod='sellstrom'}</label>
-			<div class="margin-form" id="addFundsFinalDiv">
-				<input id="finalAmount" type="text" disabled value="" />
+				<input id="finalAmount" type="hidden" value="" />
 			</div>
 			<div class="margin-form" id="addFundsButtonsDiv">
 				<a href="##" onClick="javascript:submitForm()">
@@ -189,7 +186,7 @@
 		var addAmount = document.getElementById('addAmount');
 		var finalAmount = document.getElementById('finalAmount');
 		var finalSubmit = document.getElementById('finalSubmitValue');
-		var finalValue = Number(addAmount.value) + Number(0.02 * addAmount.value);
+		var finalValue = Number(addAmount.value); // + Number(0.02 * addAmount.value);
 		finalAmount.value = '$' + finalValue;
 		finalSubmit.value = finalValue;
 	}
