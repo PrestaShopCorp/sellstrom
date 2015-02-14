@@ -24,34 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-<style>
-.isa_info, .isa_success, .isa_warning, .isa_error {
-    margin: 10px 0px;
-    padding:12px;
-    //border-radius:5px;
-}
-.isa_info {
-    color: #00529B;
-    background-color: #BDE5F8;
-}
-.isa_success {
-    color: #4F8A10;
-    background-color: #DFF2BF;
-}
-.isa_warning {
-    color: #9F6000;
-    background-color: #FEEFB3;
-}
-.isa_error {
-    color: #D8000C;
-    background-color: #FFBABA;
-}
-.isa_info i, .isa_success i, .isa_warning i, .isa_error i {
-    margin:10px 22px;
-    font-size:2em;
-    vertical-align:middle;
-}
-</style>
+<link href="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/css/sellstrom.css" rel="stylesheet" type="text/css">
 
 <script type="text/javascript">
 	{literal}
