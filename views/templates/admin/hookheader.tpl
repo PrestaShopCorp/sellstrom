@@ -65,10 +65,8 @@
 		}
 	}
 	function fetchInsuranceData() {
-		console.log(contentData.product_hash);
 		var insuranceAmount = $.trim($('#addInsuranceAmount').val());
 		$('#addInsuranceAmount').val(insuranceAmount);
-		console.log('Insurance Amount = '+insuranceAmount);
 		if (insuranceAmount == '' || insuranceAmount < 0) {
 			alert('Please enter insurance amount value of the seleted product(s).');
 			return false;
@@ -92,25 +90,15 @@
 						'insurance_amount': $('#addInsuranceAmount').val()
 					},
 					success: function(response) {
-						console.log(response);
 						if (!response.success) {
 							alert(response.msg);
 							return false;
 						}
 
 						window.location.reload(true);
-						//console.log(document.getElementById('sellstromPostController'));
-						//document.getElementById('sellstromPostController').submit();
-						//$('#sellstromPostController').submit();
-
-						//$('#addInsuranceDisplay').show();
-						//$('#addInsuranceCheck').hide();
-						//$('#addInsuranceForm').hide();
-						//window.location.href = window.location.href;
 					},
 					error: function(response) {
 						alert('error');
-						console.log(response);
 					}
 				});
 			}
@@ -134,7 +122,6 @@
 					'product_hash': contentData.product_hash
 				},
 				success: function(response) {
-					console.log(response);
 					if (!response.success) {
 						alert(response.msg);
 						return false;
@@ -147,12 +134,9 @@
 					$.uniform.update(t);
 
 					window.location.reload(true);
-					//console.log(document.getElementById('sellstromPostController'));
-					//document.getElementById('sellstromPostController').submit();
 				},
 				error: function(response) {
 					alert('error');
-					console.log(response);
 				}
 			});
 		}

@@ -187,7 +187,6 @@ function submitCreateInvoice() {
 		},
 		dataType: 'json',
 		success: function(response) {
-			console.log(response);
 			window.open(contentData.module_dir+'/invoices/'+response.filename, '_blank');
 		},
 		error: function(response) {
