@@ -52,10 +52,6 @@ class Sellstrom extends CarrierModule
 		$this->displayName = $this->l('Sellstrom Global Shipping');
 		$this->description = $this->l('Sellstrom offers discounted global shipping services on one platform
 	to help simplify your shipping needs and save your business money.');
-
-		/* Backward compatibility */
-		if (_PS_VERSION_ < '1.5')
-			require(_PS_MODULE_DIR_.$this->name.'/backward_compatibility/backward.php');
 	}
 
 	public function install()
@@ -850,13 +846,12 @@ class Sellstrom extends CarrierModule
 		$this->processForm($params);
 
 		$content_data = array();
-		$content_data['ps_version'] = _PS_VERSION_;
+		$content_data['ps_version'] = (float)_PS_VERSION_;
 		$balance_amount = (float)$this->getSSBalance();
 		$content_data['balance_amount'] = $balance_amount;
 		$content_data['presta_base_dir'] = __PS_BASE_URI__;
 		$module_dir = __PS_BASE_URI__.'modules/sellstrom';
 		$content_data['module_dir'] = $module_dir;
-
 		$content_data['shipper_address'] = array(
 			'company' => Configuration::get('PS_SHOP_NAME'),
 			'address1' => Configuration::get('PS_SHOP_ADDR1'),
@@ -932,12 +927,14 @@ class Sellstrom extends CarrierModule
 			{
 				foreach ($rep as $line)
 				{
+					$label_url = $content_data['presta_base_dir'].'modules/sellstrom/label.php?'.
+									'id_tracking='.(int)$line['id_sellstrom_tracking'].'&'.
+									'id_order='.(int)$line['id_order'].'&'.
+									'secure_key='.Tools::safeOutput($line['secure_key']);
 					$content_data['shipment_labels'][] = array(
 						'tracking_number' => Tools::safeOutput($line['tracking_number']),
 						'unit' => (int)$line['unit'],
-						'id_sellstrom_tracking' => (int)$line['id_sellstrom_tracking'],
-						'id_order' => (int)$line['id_order'],
-						'secure_key' => Tools::safeOutput($line['secure_key'])
+						'label_url' => $label_url
 					);
 				}
 			}

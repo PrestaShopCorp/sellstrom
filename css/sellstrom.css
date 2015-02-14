@@ -67,4 +67,6 @@ fieldset .sellstrom-link-ext:hover, .sellstrom-link-ext:active { color: #268CCD;
     font-size:2em;
     vertical-align:middle;
 }
-
+.watermarked {
+    color: #aaaaaa;
+}
