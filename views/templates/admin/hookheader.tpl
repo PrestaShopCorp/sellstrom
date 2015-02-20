@@ -24,8 +24,8 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-<link href="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/css/sellstrom.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/js/sellstromFrontEnd.js"></script>
+<link href="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/css/sellstrom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/js/sellstromFrontEnd.js"></script>
 
 <script type="text/javascript">
 	{literal}
@@ -72,7 +72,7 @@
 		htmlContent += '<div class="isa_info" id="addInsuranceDisplay">';
 		htmlContent += '	Insurance Amount: '+contentData.insurance_amount+' USD (<a href="#" onclick="javascript:removeInsurance();">Remove</a>)';
 		htmlContent += '    &nbsp;&nbsp;';
-		htmlContent += '    <img src="'+contentData.module_dir+'/img/ajax-loader.gif" style="height:20px;" id="ajaxLoaderImgRemove">';
+		htmlContent += '    <img src="'+contentData.module_dir+'/views/img/ajax-loader.gif" style="height:20px;" id="ajaxLoaderImgRemove">';
 		htmlContent += '</div>';
 
 		htmlContent += '<p class="checkbox" id="addInsuranceCheck" style="margin-bottom:10px;">';
@@ -84,7 +84,7 @@
 		htmlContent += '	<input id="addInsuranceAmount" type="text" class="is_required validate form-control" name="addInsuranceAmount" style="margin-bottom:10px;">';
 		htmlContent += '	<button type="button" onClick="javascript:fetchInsuranceData();" class="btn btn-primary">Submit</button>';
 		htmlContent += '    &nbsp;&nbsp;';
-		htmlContent += '    <img src="'+contentData.module_dir+'/img/ajax-loader.gif" style="height:20px;" id="ajaxLoaderImg">';
+		htmlContent += '    <img src="'+contentData.module_dir+'/views/img/ajax-loader.gif" style="height:20px;" id="ajaxLoaderImg">';
 		htmlContent += '</div>';
 
 		var pdata = contentData.post_data;

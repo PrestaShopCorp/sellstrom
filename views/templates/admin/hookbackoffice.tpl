@@ -24,8 +24,8 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-<link href="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/css/sellstrom.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/js/sellstrom.js"></script>
+<link href="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/css/sellstrom.css" rel="stylesheet" type="text/css">
+<script type="text/javascript" src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/js/sellstrom.js"></script>
 
 {$show_panel = ($content_data['ps_version'] >= 1.5) ? true : false}
 <div id="sellstromBackOffice" style="display:none;">
@@ -45,7 +45,7 @@
 	<fieldset>
 		<legend>
 {/if}
-			<img src="{$content_data['presta_base_dir']|escape:'htmlall':'UTF-8'}img/admin/delivery.gif" alt="">&nbsp;Sellstrom
+			<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/img/delivery.gif" alt="">&nbsp;Sellstrom
 {if ($show_panel)}
 		</div>
 {else}
@@ -60,7 +60,7 @@
 	<br/>
 {/if}
 					<a href="###" onclick="javascript:enableAddFundsForm();" style="color:#00aff0;text-decoration:none;font-size:12px;">
-						<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/img/add-credit.gif">Add more credit
+						<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/img/add-credit.gif">Add more credit
 					</a>
 					<br/><br/>
 					<div id="addFundsMainDiv" style="display:none">
@@ -79,7 +79,7 @@
 							<br/>
 							<div id="addFundsButtonsDiv">
 								<a href="##" onClick="javascript:submitForm()">
-									<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/img/paypal_paynow.gif">
+									<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/img/paypal_paynow.gif">
 								</a>
 								<a href="##" class="sellstrom-link-ext" onClick="javascript:disableAddFundsForm();resetFields();"
 									style="color:#00aff0;text-decoration:none;font-size:12px;">Cancel
@@ -108,7 +108,7 @@
 				<div id="create_Invoice" class="panel" style="display:none;">
 					<fieldset>
 						<div class="panel-heading">
-							<img src="{$content_data['presta_base_dir']|escape:'htmlall':'UTF-8'}img/admin/delivery.gif" alt="">&nbsp;Sellstrom - Create Invoice
+							<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/img/delivery.gif" alt="">&nbsp;Sellstrom - Create Invoice
 						</div>
 						<table id="create_Invoice_rblPackageContents" border="0">
 							<tr>
@@ -273,7 +273,7 @@
 						&nbsp;&nbsp;
 						<button type="button" onClick="javascript:cancelCreateInvoice();" class="btn btn-primary">Cancel</button>
 						&nbsp;&nbsp;
-						<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/img/ajax-loader.gif" style="height:20px;" id="ajaxLoaderImg">
+						<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/img/ajax-loader.gif" style="height:20px;" id="ajaxLoaderImg">
 					</div>
 				</div>
 	{else}
@@ -293,7 +293,7 @@
 		<div class="panel">
 			<fieldset>
 				<div class="panel-heading">
-					<img src="{$content_data['presta_base_dir']|escape:'htmlall':'UTF-8'}img/admin/delivery.gif" alt="">&nbsp;Sellstrom - Labels
+					<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/img/delivery.gif" alt="">&nbsp;Sellstrom - Labels
 				</div>
 				<div class="table-responsive">
 					<table class="table" style="width: 100%;" id="sellstromLabels">
@@ -320,7 +320,7 @@
 		<div class="panel">
 			<fieldset>
 				<div class="panel-heading">
-					<img src="{$content_data['presta_base_dir']|escape:'htmlall':'UTF-8'}img/admin/delivery.gif" alt="">&nbsp;Sellstrom - Tracking
+					<img src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/img/delivery.gif" alt="">&nbsp;Sellstrom - Tracking
 				</div>
 				<div class="table-responsive">
 					<table class="table" style="width: 100%;" id="sellstromLabels">

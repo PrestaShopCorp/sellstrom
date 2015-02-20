@@ -24,7 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-<link href="{$module_dir|escape:'htmlall':'UTF-8'}css/sellstrom.css" rel="stylesheet" type="text/css">
+<link href="{$module_dir|escape:'htmlall':'UTF-8'}views/css/sellstrom.css" rel="stylesheet" type="text/css">
 
 <script type="text/javascript">
 	{literal}
@@ -57,14 +57,14 @@
 </script>
 
 <div class="sellstrom-wrapper">
-	<a href="http://www.sellstromship.com/" target=_blank class="sellstrom-logo"><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/logo-sellstrom.png" alt="Sellstrom Global Shipping" border="0" /></a>
+	<a href="http://www.sellstromship.com/" target=_blank class="sellstrom-logo"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/logo-sellstrom.png" alt="Sellstrom Global Shipping" border="0" /></a>
 	<p class="sellstrom-intro">
 		{l s='The Smarter Shipping Solution' mod='sellstrom'}
 		<a href="http://www.sellstromship.com/" target=_blank>{l s='Create an account' mod='sellstrom'}</a>
 	</p>
 	<div class="sellstrom-content">
 		<div class="sellstrom-video">
-			<a href="http://www.youtube.com/embed/tzSSQyli6H4" class="sellstrom-video-btn"><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/video-screen.jpg" alt="Sellstrom Global Shipping" /><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/btn-video.png" alt="" class="video-icon" /></a>
+			<a href="http://www.youtube.com/embed/tzSSQyli6H4" class="sellstrom-video-btn"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/video-screen.jpg" alt="Sellstrom Global Shipping" /><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/btn-video.png" alt="" class="video-icon" /></a>
 			<a href="http://www.sellstromship.com/" target=_blank class="sellstrom-link">{l s='Create your free SGS account today!' mod='sellstrom'}</a>
 		</div>
 		<div class="sellstrom-leftCol">
@@ -73,9 +73,9 @@
 				<div>
 				<table border=0 width="80%">
 					<tr>
-						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/click.png" class="carriers-logos" height="90px" /></td>
-						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/print.png" class="carriers-logos" height="90px" /></td>
-						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/label.png" class="carriers-logos" height="90px" /></td>
+						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/click.png" class="carriers-logos" height="90px" /></td>
+						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/print.png" class="carriers-logos" height="90px" /></td>
+						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/label.png" class="carriers-logos" height="90px" /></td>
 					</tr>
 					<tr>
 						<td align=center valign=top>Click</td>
@@ -91,7 +91,7 @@
 	<div class="sellstrom-content-left">
 		<div class="sellstrom-content-left">
 			<p>{l s='If you have a current UPS, FedEx or DHL contract, we can plug it into the module. We will even assist you in opening any accounts that you may need. Don’t have a DHL account? We work with authorized DHL resellers to bring you the best pricing on your international shipments available. This module also includes negotiated pricing on postal services and eliminates the need for a separate postal account, saving you money. With the SGS Module, you don’t need to be a shipping expert, we handle the details for you.' mod='sellstrom'}</p>
-			<center><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/carries-logos.png" alt="USPS, DHL and UPS" class="carriers-logos" /></center>
+			<center><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/carries-logos.png" alt="USPS, DHL and UPS" class="carriers-logos" /></center>
 		</div>
 	</div>
 
@@ -103,7 +103,7 @@
 
 	<form action="" method="post">
 		<fieldset class="twoCol floatLeft">
-			<legend><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/credentials.png"> {l s='Settings' mod='sellstrom'}</legend>
+			<legend><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/credentials.png"> {l s='Settings' mod='sellstrom'}</legend>
 			<h4>{l s='Please enter your SGS username and password, which is needed to complete the configuration process.' mod='sellstrom'}</h4>
 			<label for="login">{l s='API Key' mod='sellstrom'}</label>
 			<div class="margin-form">
@@ -125,7 +125,7 @@
 		</fieldset>
 	</form>
 	<fieldset class="twoCol floatRight">
-		<legend><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/address.gif"> {l s='Address' mod='sellstrom'}</legend>
+		<legend><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/address.gif"> {l s='Address' mod='sellstrom'}</legend>
 		<h4>{l s='Information/Address below will be used as the shipping origination address for all quotes and shipments.' mod='sellstrom'}</h4>
 		<p><label for="login">{l s='Company' mod='sellstrom'}</label>{$merchant.company|escape:'htmlall':'UTF-8'}</p>
 		<p><label for="login">{l s='Address 1' mod='sellstrom'}</label>{$merchant.address1|escape:'htmlall':'UTF-8'}</p>
@@ -134,10 +134,10 @@
 		<p><label for="password">{l s='State' mod='sellstrom'}</label>{$merchant.state|escape:'htmlall':'UTF-8'}</p>
 		<p><label for="password">{l s='Zip' mod='sellstrom'}</label>{$merchant.zip|escape:'htmlall':'UTF-8'}</p>
 		<p><label for="password">{l s='Country' mod='sellstrom'}</label>{$merchant.country|escape:'htmlall':'UTF-8'}</p>
-		<div class="margin-form"><a href="{$addr_edit_link}" class="sellstrom-link-ext"><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/edit.gif">{l s='Edit my address' mod='sellstrom'}</a></div>
+		<div class="margin-form"><a href="{$addr_edit_link}" class="sellstrom-link-ext"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/edit.gif">{l s='Edit my address' mod='sellstrom'}</a></div>
 	</fieldset>
 	<fieldset class="clearBoth">
-		<legend><img src="{$module_dir|escape:'htmlall':'UTF-8'}img/credit.gif"> {l s='Credit' mod='sellstrom'}</legend>
+		<legend><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/credit.gif"> {l s='Credit' mod='sellstrom'}</legend>
 		<h4>{l s='This field shows the remaining credit you have with Sellstrom' mod='sellstrom'}</h4>
 		<label for="login">{l s='Remaining credit' mod='sellstrom'}</label>
 		<div class="margin-form">
@@ -145,7 +145,7 @@
 		</div>
 		<div class="margin-form">
 			<a href="####" class="sellstrom-link-ext" onClick="javascript:enableAddFundsForm();">
-				<img src="{$module_dir|escape:'htmlall':'UTF-8'}img/add-credit.gif">{l s='Add more credit' mod='sellstrom'}
+				<img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/add-credit.gif">{l s='Add more credit' mod='sellstrom'}
 			</a>
 		</div>
 		<div id="addFundsMainDiv" style="display:none">

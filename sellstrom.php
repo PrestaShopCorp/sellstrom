@@ -927,10 +927,8 @@ class Sellstrom extends CarrierModule
 			{
 				foreach ($rep as $line)
 				{
-					$label_url = $content_data['presta_base_dir'].'modules/sellstrom/label.php?'.
-									'id_tracking='.(int)$line['id_sellstrom_tracking'].'&'.
-									'id_order='.(int)$line['id_order'].'&'.
-									'secure_key='.Tools::safeOutput($line['secure_key']);
+					$label_url = $content_data['presta_base_dir'].'modules/sellstrom/label.php?id_tracking='.(int)$line['id_sellstrom_tracking'].
+'&id_order='.(int)$line['id_order'].'&secure_key='.Tools::safeOutput($line['secure_key']);
 					$content_data['shipment_labels'][] = array(
 						'tracking_number' => Tools::safeOutput($line['tracking_number']),
 						'unit' => (int)$line['unit'],
