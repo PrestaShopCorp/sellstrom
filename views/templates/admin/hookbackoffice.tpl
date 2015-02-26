@@ -24,10 +24,7 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-<link href="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/css/sellstrom.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/js/sellstrom.js"></script>
-
-{$show_panel = ($content_data['ps_version'] >= 1.5) ? true : false}
+{$show_panel = $content_data['show_panel']}
 <div id="sellstromBackOffice" style="display:none;">
 {if (!$show_panel)}
 	<br/>

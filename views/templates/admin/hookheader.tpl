@@ -24,9 +24,6 @@
 *  International Registered Trademark & Property of PrestaShop SA
 *}
 
-<link href="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/css/sellstrom.css" rel="stylesheet" type="text/css">
-<script type="text/javascript" src="{$content_data['module_dir']|escape:'htmlall':'UTF-8'}/views/js/sellstromFrontEnd.js"></script>
-
 <script type="text/javascript">
 	{literal}
 	$(function() {

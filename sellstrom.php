@@ -471,6 +471,9 @@ class Sellstrom extends CarrierModule
 			if (!Validate::isLoadedObject($addr))
 				return;
 
+			$this->context->controller->addCSS($this->_path.'views/css/sellstrom.css');
+			$this->context->controller->addJs($this->_path.'views/js/sellstromFrontEnd.js');
+
 			// Get the insurance amount
 			$product_hash = $this->getCartHash($this->context->cart);
 			$insurance_amount = Db::getInstance()->getValue('SELECT `insurance_amount` FROM `'._DB_PREFIX_.'sellstrom_insurance`
@@ -845,8 +848,11 @@ class Sellstrom extends CarrierModule
 
 		$this->processForm($params);
 
+		$this->context->controller->addCSS($this->_path.'views/css/sellstrom.css');
+		$this->context->controller->addJs($this->_path.'views/js/sellstrom.js');
+
 		$content_data = array();
-		$content_data['ps_version'] = (float)_PS_VERSION_;
+		$content_data['show_panel'] = version_compare(_PS_VERSION_, '1.5', '>=');
 		$balance_amount = (float)$this->getSSBalance();
 		$content_data['balance_amount'] = $balance_amount;
 		$content_data['presta_base_dir'] = __PS_BASE_URI__;
