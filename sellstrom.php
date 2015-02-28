@@ -1090,7 +1090,7 @@ class Sellstrom extends CarrierModule
 			}
 
 			// Copy Logo
-			if (!copy(dirname(__FILE__).'/img/'.$logo, _PS_SHIP_IMG_DIR_.'/'.(int)$carrier->id.'.jpg'))
+			if (!copy(dirname(__FILE__).'/views/img/'.$logo, _PS_SHIP_IMG_DIR_.'/'.(int)$carrier->id.'.jpg'))
 				return false;
 
 			// Return ID Carrier
