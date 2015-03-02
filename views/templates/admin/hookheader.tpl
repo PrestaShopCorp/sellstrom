@@ -27,10 +27,13 @@
 <script type="text/javascript">
 	{literal}
 	$(function() {
-		var contentData = {/literal}{$content_data|json_encode}{literal};
+		contentData = {/literal}{$content_data|json_encode}{literal};
+		var carrierData = contentData.carrier_data;
+		var productHash = contentData.product_hash;
 		var htmlContent = '';
-		for (var i=0; i < contentData.length; i++) {
-			var data = contentData[i];
+		for (var i=0; i < carrierData.length; i++) {
+			var data = carrierData[i];
+			productHash = data.product_hash;
 			htmlContent += '<div class="delivery_option item">';
 			htmlContent += '	<div>';
 			htmlContent += '    <table class="resume table table-bordered">';
@@ -62,10 +65,49 @@
 			htmlContent += '	</div>';
 			htmlContent += '</div>';
 		}
+
+		htmlContent += '<div class="isa_info" id="addInsuranceDisplay">';
+		htmlContent += '	Insurance Amount: '+contentData.insurance_amount+' USD (<a href="#" onclick="javascript:removeInsurance();">Remove</a>)';
+		htmlContent += '    &nbsp;&nbsp;';
+		htmlContent += '    <img src="'+contentData.module_dir+'/views/img/ajax-loader.gif" style="height:20px;" id="ajaxLoaderImgRemove">';
+		htmlContent += '</div>';
+
+		htmlContent += '<p class="checkbox" id="addInsuranceCheck" style="margin-bottom:10px;">';
+		htmlContent += '	<input id="addInsurance" type="checkbox" value="1" name="addInsurance" onchange="javascript:checkAddInsurance(this);">';
+		htmlContent += '	<label for="addInsurance"><b>Add Insurance</b></label>';
+		htmlContent += '</p>';
+		htmlContent += '<div id="addInsuranceForm" style="margin-top:10px;margin-bottom:10px;width:275px;border:1px solid #d6d4d4;padding:12px;">';
+		htmlContent += '	<label for="addInsuranceAmount">Amount *</label>';
+		htmlContent += '	<input id="addInsuranceAmount" type="text" class="is_required validate form-control" name="addInsuranceAmount" style="margin-bottom:10px;">';
+		htmlContent += '	<button type="button" onClick="javascript:fetchInsuranceData();" class="btn btn-primary">Submit</button>';
+		htmlContent += '    &nbsp;&nbsp;';
+		htmlContent += '    <img src="'+contentData.module_dir+'/views/img/ajax-loader.gif" style="height:20px;" id="ajaxLoaderImg">';
+		htmlContent += '</div>';
+
+		var pdata = contentData.post_data;
+		htmlContent += '<form id="sellstromPostController" method="POST" action="'+pdata.url+'">';
+		jQuery.each(pdata, function(i, val) {
+			htmlContent += '<input type="hidden" name="'+i+'" value="'+val+'">';
+		});
+		htmlContent += '</form>';
+
 		$('#noCarrierWarning').hide();
 		$('#form .delivery_options').html(
 			$('#form .delivery_options').html() + htmlContent
 		);
+
+		if (contentData.insurance_amount) {
+			$('#addInsuranceDisplay').show();
+			$('#addInsuranceCheck').hide();
+		}
+		else {
+			$('#addInsuranceDisplay').hide();
+			$('#addInsuranceCheck').show();
+		}
+		$('#addInsuranceForm').hide();
+		$('#ajaxLoaderImg').hide();
+		$('#ajaxLoaderImgRemove').hide();
 	});
+
 	{/literal}
 </script>

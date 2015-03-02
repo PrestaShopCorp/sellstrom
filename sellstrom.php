@@ -37,22 +37,20 @@ class Sellstrom extends CarrierModule
 
 	public function __construct()
 	{
-	$this->name = 'sellstrom';
-	$this->tab = 'shipping_logistics';
-	$this->version = '0.1.2';
-	$this->author = 'Sellstrom Global Shipping';
-	$this->need_instance = 1;
+		$this->name = 'sellstrom';
+		$this->tab = 'shipping_logistics';
+		$this->version = '0.1.2';
+		$this->author = 'Sellstrom Global Shipping';
+		$this->need_instance = 1;
 
 		parent::__construct();
 
-#		Configuration::updateValue('PS_LANG_DEFAULT','en');
+		if ($this->id && !Configuration::get('SELLSTROM_USER_ID'))
+			$this->warning = $this->l('You must provide your Sellstrom account details to complete the configuration process.');
 
-	if ($this->id && !Configuration::get('SELLSTROM_USER_ID'))
-		$this->warning = $this->l('You must provide your Sellstrom account details to complete the configuration process.');
-
-	$this->confirmUninstall = $this->l('Are you sure you want to delete your details?');
-	$this->displayName = $this->l('Sellstrom Global Shipping');
-	$this->description = $this->l('Sellstrom offers discounted global shipping services on one platform
+		$this->confirmUninstall = $this->l('Are you sure you want to delete your details?');
+		$this->displayName = $this->l('Sellstrom Global Shipping');
+		$this->description = $this->l('Sellstrom offers discounted global shipping services on one platform
 	to help simplify your shipping needs and save your business money.');
 	}
 
@@ -106,6 +104,11 @@ class Sellstrom extends CarrierModule
 		`tracking_number` varchar(255) NOT NULL,
 		`date` datetime NOT NULL,
 	 PRIMARY KEY (`id_sellstrom_tracking_event`)
+	 ) ENGINE=InnoDB DEFAULT CHARSET=utf8') ||
+			!Db::getInstance()->Execute('CREATE TABLE IF NOT EXISTS `'._DB_PREFIX_.'sellstrom_insurance` (
+		`product_hash` VARCHAR(32) NOT NULL,
+		`insurance_amount` DECIMAL(10,2) NOT NULL,
+	 PRIMARY KEY (`product_hash`)
 	 ) ENGINE=InnoDB DEFAULT CHARSET=utf8'))
 			$this->_errors[] = $this->l('Error with the database during the installation');
 
@@ -284,6 +287,10 @@ class Sellstrom extends CarrierModule
 
 	protected function forgePackagesFromCart(Cart $cart)
 	{
+		// Get the insurance amount
+		$product_hash = $this->getCartHash($cart);
+		$insurance_amount = Db::getInstance()->getValue('SELECT `insurance_amount` FROM `'._DB_PREFIX_.'sellstrom_insurance`
+														 WHERE `product_hash` = \''.pSQL($product_hash).'\'');
 		if (!Validate::isLoadedObject($cart))
 			return null;
 		$packages = array();
@@ -299,6 +306,7 @@ class Sellstrom extends CarrierModule
 			$p->width = $product['width'];
 			$p->height = $product['height'];
 			$p->declared_value = $product['total'];
+			$p->insurance = $insurance_amount;
 			$packages[] = new SSPackage($p);
 		}
 		return $packages;
@@ -314,9 +322,11 @@ class Sellstrom extends CarrierModule
 
 		// Forge the SSAddress with the store data
 		$src_addr = $this->getShopAddress();
+
 		// Forge the destination address with the customer data
 		$dst_addr = $this->convertAddress($addr);
 
+		// Forge the packages from the cart
 		$packages = $this->forgePackagesFromCart($this->context->cart);
 
 		$quote_request = new SSQuoteRequest($src_addr, $dst_addr, $packages);
@@ -386,6 +396,8 @@ class Sellstrom extends CarrierModule
 	protected function getCacheQuotes()
 	{
 		$hash = $this->getCartHash($this->context->cart);
+		$id_order = (int)Order::getOrderByCartId((int)$this->context->cart->id);
+
 		$current_time = time();
 		$crep = Db::getInstance()->ExecuteS('SELECT `id_carrier`,
 													`id_cart`,
@@ -405,7 +417,7 @@ class Sellstrom extends CarrierModule
 			}
 			$time_diff = $current_time - $qtime;
 			# If the quotes are cached for more than a day then delete the cache quotes from DB.
-			if ($time_diff >= (24 * 3600))
+			if ($time_diff >= (24 * 3600) && !$id_order)
 			{
 				Db::getInstance()->Execute('DELETE from `'._DB_PREFIX_.'sellstrom_quote_cache` WHERE `product_hash` = \''.pSQL($hash).'\'');
 				return false;
@@ -459,6 +471,14 @@ class Sellstrom extends CarrierModule
 			if (!Validate::isLoadedObject($addr))
 				return;
 
+			$this->context->controller->addCSS($this->_path.'views/css/sellstrom.css');
+			$this->context->controller->addJs($this->_path.'views/js/sellstromFrontEnd.js');
+
+			// Get the insurance amount
+			$product_hash = $this->getCartHash($this->context->cart);
+			$insurance_amount = Db::getInstance()->getValue('SELECT `insurance_amount` FROM `'._DB_PREFIX_.'sellstrom_insurance`
+															 WHERE `product_hash` = \''.pSQL($product_hash).'\'');
+
 			$cache_quotes = $this->getCacheQuotes();
 			if (!$cache_quotes)
 			{
@@ -493,7 +513,25 @@ class Sellstrom extends CarrierModule
 				);
 			}
 
-			$this->context->smarty->assign(array('content_data' => $carrier_data));
+			$this->context->smarty->assign(array(
+				'content_data' => array(
+					'carrier_data' => $carrier_data,
+					'product_hash' => $product_hash,
+					'insurance_amount' => $insurance_amount,
+					'id_cart' => (int)$this->context->cart->id,
+					'module_dir' => __PS_BASE_URI__.'modules/sellstrom',
+					'post_data' => array(
+						'id_address_delivery' => Tools::getValue('id_address_delivery'),
+						'same' => Tools::getValue('same'),
+						'id_address_invoice' => Tools::getValue('id_address_invoice'),
+						'message' => Tools::getValue('message'),
+						'step' => Tools::getValue('step'),
+						'back' => Tools::getValue('back'),
+						'processAddress' => Tools::getValue('processAddress'),
+						'url' => __PS_BASE_URI__.'/index.php?controller=order'
+					)
+				)
+			));
 
 			return $this->display(__FILE__, 'views/templates/admin/hookheader.tpl');
 		}
@@ -526,7 +564,6 @@ class Sellstrom extends CarrierModule
 			$this->_errors[] = $this->l('This order is corrupt (cache missing). Please contact Sellstrom to validate shipment.');
 			return false;
 		}
-		$login_id = pSQL($r['login_id']);
 		$quote_id = pSQL($r['quote_id']);
 		$quote_ref_id = pSQL($r['quote_ref']);
 
@@ -546,8 +583,7 @@ class Sellstrom extends CarrierModule
 
 		// Instanciate the client and set the login session
 		$this->instanciateClient();
-		//unset($this->static_cred->login);
-		$this->static_cred->login_id = $login_id;
+		unset($this->static_cred->login_id);
 
 		try
 		{
@@ -685,6 +721,13 @@ class Sellstrom extends CarrierModule
 			$this->_errors[] = Tools::safeOutput('No shipment found within the allowed void period');
 			return false;
 		}
+
+		if ($ret->error_msg != '')
+		{
+			$this->_errors[] = Tools::safeOutput($ret->error_msg);
+			return false;
+		}
+
 		Db::getInstance()->Execute('UPDATE `'._DB_PREFIX_.'sellstrom_shipment` SET `void` = 1 WHERE `id_order` = '.(int)$id_order);
 
 		if (!count($this->_errors))
@@ -805,13 +848,28 @@ class Sellstrom extends CarrierModule
 
 		$this->processForm($params);
 
+		$this->context->controller->addCSS($this->_path.'views/css/sellstrom.css');
+		$this->context->controller->addJs($this->_path.'views/js/sellstrom.js');
+
 		$content_data = array();
-		$content_data['ps_version'] = _PS_VERSION_;
+		$content_data['show_panel'] = version_compare(_PS_VERSION_, '1.5', '>=');
 		$balance_amount = (float)$this->getSSBalance();
 		$content_data['balance_amount'] = $balance_amount;
 		$content_data['presta_base_dir'] = __PS_BASE_URI__;
 		$module_dir = __PS_BASE_URI__.'modules/sellstrom';
 		$content_data['module_dir'] = $module_dir;
+		$content_data['shipper_address'] = array(
+			'company' => Configuration::get('PS_SHOP_NAME'),
+			'address1' => Configuration::get('PS_SHOP_ADDR1'),
+			'address2' => Configuration::get('PS_SHOP_ADDR2'),
+			'city' => Configuration::get('PS_SHOP_CITY'),
+			'state' => $this->getIsoByStateId((int)Configuration::get('PS_SHOP_STATE_ID')),
+			'zip' => Configuration::get('PS_SHOP_CODE'),
+			'country' => Country::getIsoById((int)Configuration::get('PS_SHOP_COUNTRY_ID'))
+		);
+
+		// Get the product details
+		$content_data['products'] = $params['cart']->getProducts(true);
 
 		if (count($this->_errors))
 			$content_data['error_message'] = implode("\n", $this->_errors);
@@ -859,6 +917,7 @@ class Sellstrom extends CarrierModule
 			$content_data['shipment_validated'] = true;
 			$content_data['shipment_labels'] = array();
 			$content_data['tracking_data'] = array();
+			$content_data['id_order'] = (int)Order::getOrderByCartId((int)$params['cart']->id);
 
 			$rep = Db::getInstance()->ExecuteS('SELECT st.`id_order`, 
 						st.`id_sellstrom_tracking`, 
@@ -874,12 +933,12 @@ class Sellstrom extends CarrierModule
 			{
 				foreach ($rep as $line)
 				{
+					$label_url = $content_data['presta_base_dir'].'modules/sellstrom/label.php?id_tracking='.(int)$line['id_sellstrom_tracking'].
+'&id_order='.(int)$line['id_order'].'&secure_key='.Tools::safeOutput($line['secure_key']);
 					$content_data['shipment_labels'][] = array(
 						'tracking_number' => Tools::safeOutput($line['tracking_number']),
 						'unit' => (int)$line['unit'],
-						'id_sellstrom_tracking' => (int)$line['id_sellstrom_tracking'],
-						'id_order' => (int)$line['id_order'],
-						'secure_key' => Tools::safeOutput($line['secure_key'])
+						'label_url' => $label_url
 					);
 				}
 			}
@@ -922,7 +981,8 @@ class Sellstrom extends CarrierModule
 			if (!Validate::isLoadedObject($addr))
 				false;
 			$resp = $this->getQuotes($this->context->cart, $addr);
-			$this->cacheQuotes($resp->quote_id, $resp->quotes, $resp->login_id);
+			if ($resp)
+				$this->cacheQuotes($resp->quote_id, $resp->quotes, $resp->login_id);
 		}
 
 		$price = Db::getInstance()->getValue('SELECT `price`
@@ -1030,7 +1090,7 @@ class Sellstrom extends CarrierModule
 			}
 
 			// Copy Logo
-			if (!copy(dirname(__FILE__).'/img/'.$logo, _PS_SHIP_IMG_DIR_.'/'.(int)$carrier->id.'.jpg'))
+			if (!copy(dirname(__FILE__).'/views/img/'.$logo, _PS_SHIP_IMG_DIR_.'/'.(int)$carrier->id.'.jpg'))
 				return false;
 
 			// Return ID Carrier

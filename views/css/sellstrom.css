@@ -9,7 +9,7 @@ p.sellstrom-intro-star { color: #205288; font-size: 28px; line-height: 30px; mar
 .sellstrom-content p { color: #808080; font-size: 13px; line-height: 18px; margin-bottom: 15px; }
 .sellstrom-content h3 { color: #205288; font-size: 18px; font-weight: normal; line-height: 20px; letter-spacing: 1px; margin: 0px 0px 10px 0px; }
 .sellstrom-content ul { list-style: none; margin: 0px 0px 20px 0px; padding: 0px; }
-.sellstrom-content ul li { background: url(img/bullet.gif) left 7px no-repeat; color: #444; font-size: 15px; line-height: 20px; margin: 0px; padding: 0px 0px 0px 13px; }
+.sellstrom-content ul li { background: url(views/img/bullet.gif) left 7px no-repeat; color: #444; font-size: 15px; line-height: 20px; margin: 0px; padding: 0px 0px 0px 13px; }
 .sellstrom-leftCol {  margin: 0px 0px 0px 375px; overflow: hidden; }
 .sellstrom-video { background-color: #FEFEFE; border: #205288 solid 1px; float: left; margin: 0px; padding: 6px; overflow: hidden; text-align: center; width: 335px; -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; }
 .sellstrom-leftCol p { color: #444; font-size: 15px; line-height: 20px; margin-top: 0px; }
@@ -40,3 +40,33 @@ fieldset .sellstrom-link-ext { color: #268CCD; font-size: 12px; text-decoration:
 fieldset .sellstrom-link-ext:hover, .sellstrom-link-ext:active { color: #268CCD; text-decoration: none; }
 
 #allow_negative { padding-top: 3px; }
+
+.isa_info, .isa_success, .isa_warning, .isa_error {
+    margin: 10px 0px;
+    padding:12px;
+    border-radius:5px;
+}
+.isa_info {
+    color: #00529B;
+    background-color: #BDE5F8;
+}
+.isa_success {
+    color: #4F8A10;
+    background-color: #DFF2BF;
+}
+.isa_warning {
+    color: #9F6000;
+    background-color: #FEEFB3;
+}
+.isa_error {
+    color: #D8000C;
+    background-color: #FFBABA;
+}
+.isa_info i, .isa_success i, .isa_warning i, .isa_error i { 
+    margin:10px 22px;
+    font-size:2em;
+    vertical-align:middle;
+}
+.watermarked {
+    color: #aaaaaa;
+}
