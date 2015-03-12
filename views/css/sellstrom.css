@@ -1,7 +1,7 @@
 .sellstrom-wrapper { clear: both; margin: 0px auto; overflow: hidden; width: 1024px; }
 a.sellstrom-logo { display: inline-block; float: left; margin: 0px 65px 0px 20px; }
 
-p.sellstrom-intro { color: #205288; font-size: 28px; line-height: 30px; margin: 40px 20px 0px 0px; padding-bottom: 3px; overflow: hidden; }
+p.sellstrom-intro { color: #205288; font-size: 28px; line-height: 30px; margin: 40px 20px 0px 0px; padding-bottom: 50px; overflow: hidden; }
 p.sellstrom-intro a { background-color: #205288; color: #FFF; float: right; font-size: 14px; font-weight: bold; height: 30px; line-height: 29px; padding: 0px 18px; text-shadow: -1px 1px #002838; text-decoration: none; -moz-border-radius: 15px; -webkit-border-radius: 15px; border-radius: 15px; }
 p.sellstrom-intro a:hover { background-color: #72D4EA; color: #FFF; text-decoration: none; }
 p.sellstrom-intro-star { color: #205288; font-size: 28px; line-height: 30px; margin: 0px 20px 0px 0px; padding-bottom: 3px; overflow: hidden; }
@@ -11,7 +11,7 @@ p.sellstrom-intro-star { color: #205288; font-size: 28px; line-height: 30px; mar
 .sellstrom-content ul { list-style: none; margin: 0px 0px 20px 0px; padding: 0px; }
 .sellstrom-content ul li { background: url(views/img/bullet.gif) left 7px no-repeat; color: #444; font-size: 15px; line-height: 20px; margin: 0px; padding: 0px 0px 0px 13px; }
 .sellstrom-leftCol {  margin: 0px 0px 0px 375px; overflow: hidden; }
-.sellstrom-video { background-color: #FEFEFE; border: #205288 solid 1px; float: left; margin: 0px; padding: 6px; overflow: hidden; text-align: center; width: 335px; -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; }
+.sellstrom-video { background-color: #FEFEFE; border: #205288 solid 1px; float: right; margin: 0px; padding: 6px; overflow: hidden; text-align: center; width: 335px; -moz-border-radius: 3px; -webkit-border-radius: 3px; border-radius: 3px; }
 .sellstrom-leftCol p { color: #444; font-size: 15px; line-height: 20px; margin-top: 0px; }
 .sellstrom-content-left { clear: both; margin-bottom: 15px; padding: 0px 0px 0px 0px; position: relative; overflow: hidden;  }
 .sellstrom-content-left p { color: #444; font-size: 15px; line-height: 20px; margin-top: 0px; }
@@ -38,6 +38,8 @@ fieldset.floatRight label { display: inline-block; float: none; padding-top: 0; 
 fieldset.floatRight p { color: #7F7F7F; }
 fieldset .sellstrom-link-ext { color: #268CCD; font-size: 12px; text-decoration: underline; }
 fieldset .sellstrom-link-ext:hover, .sellstrom-link-ext:active { color: #268CCD; text-decoration: none; }
+
+.floatLeft h3 { text-decoration:underline; }
 
 #allow_negative { padding-top: 3px; }
 

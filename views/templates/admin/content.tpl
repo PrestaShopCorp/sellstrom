@@ -62,45 +62,11 @@
 		{l s='The Smarter Shipping Solution' mod='sellstrom'}
 		<a href="http://www.sellstromship.com/" target=_blank>{l s='Create an account' mod='sellstrom'}</a>
 	</p>
-	<div class="sellstrom-content">
-		<div class="sellstrom-video">
-			<a href="http://www.youtube.com/embed/tzSSQyli6H4" class="sellstrom-video-btn"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/video-screen.jpg" alt="Sellstrom Global Shipping" /><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/btn-video.png" alt="" class="video-icon" /></a>
-			<a href="http://www.sellstromship.com/" target=_blank class="sellstrom-link">{l s='Create your free SGS account today!' mod='sellstrom'}</a>
-		</div>
-		<div class="sellstrom-leftCol">
-			<h3>{l s='SGS Saves  You Time  and Money' mod='sellstrom'}</h3>
-			<p>{l s='The SGS Shipping Module simplifies your shipping and saves your company money. Your customer chooses the carrier and transit time - UPS, FedEx, USPS and DHL - all on one platform. Once the customer chooses the carrier and service, the shipping label is automatically created within your order.' mod='sellstrom'}</p>
-				<div>
-				<table border=0 width="80%">
-					<tr>
-						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/click.png" class="carriers-logos" height="90px" /></td>
-						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/print.png" class="carriers-logos" height="90px" /></td>
-						<td align=center><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/label.png" class="carriers-logos" height="90px" /></td>
-					</tr>
-					<tr>
-						<td align=center valign=top>Click</td>
-						<td align=center valign=top>Print</td>
-						<td align=center valign=top>Label</td>
-					</tr>
-				</table>
-				<br/>
-				<p>{l s='You just click, print and place the shipping label on the box. The tracking information is downloaded into the order and available for your customer. No more entering orders or tracking numbers.' mod='sellstrom'}</p>
-			</div>
-		</div>
-	</div>
-	<div class="sellstrom-content-left">
-		<div class="sellstrom-content-left">
-			<p>{l s='If you have a current UPS, FedEx or DHL contract, we can plug it into the module. We will even assist you in opening any accounts that you may need. Don’t have a DHL account? We work with authorized DHL resellers to bring you the best pricing on your international shipments available. This module also includes negotiated pricing on postal services and eliminates the need for a separate postal account, saving you money. With the SGS Module, you don’t need to be a shipping expert, we handle the details for you.' mod='sellstrom'}</p>
-			<center><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/carries-logos.png" alt="USPS, DHL and UPS" class="carriers-logos" /></center>
-		</div>
-	</div>
-
 {if isset($validation)}
     <div class="conf confirm">
     	 {$validation|escape}
     </div>
 {/if}
-
 	<form action="" method="post">
 		<fieldset class="twoCol floatLeft">
 			<legend><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/credentials.png"> {l s='Settings' mod='sellstrom'}</legend>
@@ -170,6 +136,63 @@
 		</form>
 		</div>
 	</fieldset>
+	<br/>
+	<div class="halfCol floatLeft">
+		<h1>{l s='Steps to Configure Your SGS Module' mod='sellstrom'}</h1>
+		<h3>{l s='Input the Login Credentials' mod='sellstrom'}</h3>
+		<p>{l s='1. Log into your PrestaShop Dashboard.' mod='sellstrom'}</p>
+		<p>{l s='2. Click the Modules tab on the left side of the page.' mod='sellstrom'}</p>
+		<p>{l s='3. Scroll down until you see the SGS Module.' mod='sellstrom'}</p>
+		<p>{l s='4. Click on the configure button on the right side of the module.' mod='sellstrom'}</p>
+		<br />
+		
+		<h3>{l s='Set Product and Weight Dimensions' mod='sellstrom'}</h3>
+		<p>{l s='1. From the PrestaShop Dashboard, click on Catalog from the menu on the left.' mod='sellstrom'}</p>
+		<p>{l s='2. Click on Products.' mod='sellstrom'}</p>
+		<p>{l s='3. Click Edit to the right of each product.' mod='sellstrom'}</p>
+		<p>{l s='4. Click the shipping tab on the edit page.' mod='sellstrom'}</p>
+		<p>{l s='5. Fill in the package size and weight information for each product.' mod='sellstrom'}</p>
+		<br />
+		
+		<h3>{l s='Select the Carriers' mod='sellstrom'}</h3>
+		<p>{l s='1. From the PrestaShop Dashboard, click on Shipping from teh menu on the left.' mod='sellstrom'}</p>
+		<p>{l s='2. Click on Carriers.' mod='sellstrom'}</p>
+		<p>{l s='3. This will show a list of carriers and services - Click the X next to any carrier service that you do not want to be offered to your customer.' mod='sellstrom'}</p>
+		<br />
+		
+		
+		<h3>{l s='Add a Handling Charge' mod='sellstrom'}</h3>
+		<p>{l s='The price that your custoer will see for shipping will be the same amount that you will be charged unless there is a handling charge added. You may want to consider this, especially if you are doing frequent FedEx and UPS shipments because of the residential delivery fee. Adding a handling charge changes the amount that the customer sees for the shipping price - it is not broken out as a separate fee.' mod='sellstrom'}</p>
+		<p>{l s='1. From the PrestaShop Dashboard, click on Shipping from the menu on the left.' mod='sellstrom'}</p>
+		<p>{l s='2. Click on Preferences.' mod='sellstrom'}</p>
+		<p>{l s='3. Enter a dollar amount in the handling charges.' mod='sellstrom'}</p>
+		<br />
+		
+		<h3>{l s='Choose the Countries You Will Ship Products To' mod='sellstrom'}</h3>
+		<p>{l s='1. From the PrestaShop Dashboard, click on Localization from the menu on the left.' mod='sellstrom'}</p>
+		<p>{l s='3. Click on Countries.' mod='sellstrom'}</p>
+		<p>{l s='3. Enable or Disable Country by Selecting a Checkmark or X.' mod='sellstrom'}</p>
+		<br />
+		
+		<h3>{l s='Fund Your Meter Balance' mod='sellstrom'}</h3>
+		<p>{l s='All USPS shipments and shipments utilizing an SGS account need to be prepaid from your SGS postage meter. Shipments utilizing your companys carrier account, will be billed to you by the carrier and do not need to be prepaid. To fund your meter:' mod='sellstrom'}</p>
+		<p>{l s='1. Log into the SGS Console @ sellstromship.com.' mod='sellstrom'}</p>
+		<p>{l s='2. Click login and enter the username and password from the registration email.' mod='sellstrom'}</p>
+		<p>{l s='3. Or if already logged in, click console from the menu on the top of page.' mod='sellstrom'}</p>
+		<p>{l s='4. On the top right side of page, under the add funds section, enter the amount to add to your meter.' mod='sellstrom'}</p>
+		<p>{l s='5. You will be redirected to the SGS PayPal page to complete the transaction.' mod='sellstrom'}</p>
+	</div>
+	<div class="halfCol floatRight">
+		<div class="sellstrom-video">
+			<a href="https://www.youtube.com/embed/8rdCkt3nhCg" class="sellstrom-video-btn"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/IntroducingPrestashop.png" alt="Sellstrom Global Shipping" /><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/btn-video.png" alt="" class="video-icon" /></a>
+			<a href="http://www.sellstromship.com/" target=_blank class="sellstrom-link">{l s='PrestaShop & SGS' mod='sellstrom'}</a>
+		</div>
+		<br/>
+		<div class="sellstrom-video">
+			<a href="https://www.youtube.com/embed/v1x-2DaPoiw" class="sellstrom-video-btn"><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/HowPrestaShopWorks.png" alt="Sellstrom Global Shipping" /><img src="{$module_dir|escape:'htmlall':'UTF-8'}views/img/btn-video.png" alt="" class="video-icon" /></a>
+			<a href="http://www.sellstromship.com/" target=_blank class="sellstrom-link">{l s='How it Works...' mod='sellstrom'}</a>
+		</div>
+	</div>
 </div>
 
 <script type="text/javascript">
