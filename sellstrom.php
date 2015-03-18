@@ -846,6 +846,12 @@ class Sellstrom extends CarrierModule
 		if (Tools::strtolower(Tools::getValue('controller')) != 'adminorders' || !Tools::getValue('id_order') || !Tools::isSubmit('vieworder'))
 			return;
 
+		// Make sure we have the right carrier
+		$this->id_carrier = $params['cart']->id_carrier;
+		$carrier = new Carrier((int)$this->id_carrier);
+		if (!preg_match('/^sellstrom/i', $carrier->name))
+			return;
+
 		$this->processForm($params);
 
 		$this->context->controller->addCSS($this->_path.'views/css/sellstrom.css');
@@ -885,8 +891,6 @@ class Sellstrom extends CarrierModule
 		$content_data['login'] = $login;
 		$content_data['password'] = $password;
 
-		// Make sure we have the right id_carrier
-		$this->id_carrier = $params['cart']->id_carrier;
 		// Get the shipping cost
 		$ss_cost = (float)$this->getOrderShippingCost($params['cart'], 0);
 
