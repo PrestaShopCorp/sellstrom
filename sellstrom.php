@@ -39,7 +39,7 @@ class Sellstrom extends CarrierModule
 	{
 		$this->name = 'sellstrom';
 		$this->tab = 'shipping_logistics';
-		$this->version = '0.1.4';
+		$this->version = '0.1.5';
 		$this->author = 'Sellstrom Global Shipping';
 		$this->need_instance = 1;
 
