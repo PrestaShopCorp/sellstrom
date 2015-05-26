@@ -39,7 +39,7 @@ class Sellstrom extends CarrierModule
 	{
 		$this->name = 'sellstrom';
 		$this->tab = 'shipping_logistics';
-		$this->version = '0.1.3';
+		$this->version = '0.1.6';
 		$this->author = 'Sellstrom Global Shipping';
 		$this->need_instance = 1;
 
@@ -119,7 +119,9 @@ class Sellstrom extends CarrierModule
 			Configuration::updateValue('SELLSTROM_MODE_TEST', false) &&
 			Configuration::updateValue('SELLSTROM_ALLOW_NEGATIVE', false) &&
 			$this->registerHook('header') &&
-			$this->registerHook('backofficeHeader') && $this->registerHook('displayOrderDetail');
+			$this->registerHook('backofficeHeader') &&
+			$this->registerHook('displayOrderDetail') &&
+			$this->registerHook('updateCarrier');
 	}
 
 	public function hookDisplayOrderDetail($params)
@@ -462,7 +464,7 @@ class Sellstrom extends CarrierModule
 	 */
 	public function hookHeader()
 	{
-		if (Tools::getValue('controller') == 'order-opc' ||
+		if (Tools::getValue('controller') == 'order-opc' || Tools::getValue('controller') == 'orderopc' ||
 			(($_SERVER['PHP_SELF'] == 'order.php' || Tools::getValue('controller') == 'order') &&
 				Tools::getValue('step') == 2))
 		{
@@ -849,7 +851,9 @@ class Sellstrom extends CarrierModule
 		// Make sure we have the right carrier
 		$this->id_carrier = $params['cart']->id_carrier;
 		$carrier = new Carrier((int)$this->id_carrier);
-		if (!preg_match('/^sellstrom/i', $carrier->name))
+		error_log('Carrier Details = '.json_encode($carrier));
+		error_log('External module name = '.$carrier->external_module_name);
+		if (!preg_match('/^sellstrom/i', $carrier->external_module_name))
 			return;
 
 		$this->processForm($params);
@@ -1104,4 +1108,13 @@ class Sellstrom extends CarrierModule
 		return false;
 	}
 
+	public function hookupdateCarrier($params)
+	{
+		// Update new carrier id in sellstrom_carrier table
+		$old_carrier_id = (int)$params['id_carrier'];
+		$new_carrier_id = (int)$params['carrier']->id;
+		$update_sql = 'UPDATE `'._DB_PREFIX_.'sellstrom_carrier`
+				SET `id_carrier` = '.$new_carrier_id.' WHERE `id_carrier` = '.$old_carrier_id;
+		Db::getInstance()->Execute($update_sql);
+	}
 }

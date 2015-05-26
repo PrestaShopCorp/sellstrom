@@ -109,11 +109,12 @@
 		$('#ajaxLoaderImgRemove').hide();
 
 		var existingContent = $('#form .delivery_options').html();
-		var dhlPattern = /Sellstrom\s+\-\s+DHL\s+[\w\|\-]+\s+/gi;
-		var dhlModifiedContent = existingContent.replace(dhlPattern, 'DHL ');
-		var replacePattern = /Sellstrom\s+\-\s+\w+\s+[\w\|\-]+\s+/gi;
-		var realContent = dhlModifiedContent.replace(replacePattern, '');
-		$('#form .delivery_options').html(realContent);
+		$('#form .delivery_options').html(existingContent);
+		//var dhlPattern = /Sellstrom\s+\-\s+DHL\s+[\w\|\-]+\s+/gi;
+		//var dhlModifiedContent = existingContent.replace(dhlPattern, 'DHL ');
+		//var replacePattern = /Sellstrom\s+\-\s+\w+\s+[\w\|\-]+\s+/gi;
+		//var realContent = dhlModifiedContent.replace(replacePattern, '');
+		//$('#form .delivery_options').html(realContent);
 	});
 
 	{/literal}
