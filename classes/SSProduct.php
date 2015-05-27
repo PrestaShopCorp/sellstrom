@@ -53,6 +53,8 @@ class SSProduct
 	/** @var float $ounces OUNCES part of the weigth for the Product (@see $lbs) */
 	public $ounces = 0.;
 
+	public $weight_unit = '';
+
 	public $length = 0.;
 	public $width = 0.;
 	public $height = 0.;
