@@ -176,7 +176,7 @@ class Sellstrom extends CarrierModule
 		ini_set('soap.wsdl_cache_enabled', '0');
 		ini_set('allow_url_fopen', '1');
 
-		$this->_client = new SoapClient('http://54.235.249.8/soap_server/wsdl/webship.wsdl', array('trace' => 1, 'classmap' => array(
+		$this->_client = new SoapClient('http://54.235.249.8/soap_server/wsdl/webshipV2.wsdl', array('trace' => 1, 'classmap' => array(
 													'QuoteRequest' => 'SSQuoteRequest',
 													'QuoteResponse' => 'SSQuoteResponse',
 													'Quote' => 'SSQuote',
@@ -311,6 +311,7 @@ class Sellstrom extends CarrierModule
 			$p->declared_value = $product['total'];
 			$p->insurance = $insurance_amount;
 			$p->weight_unit = Configuration::get('PS_WEIGHT_UNIT');
+			$p->length_unit = Configuration::get('PS_DIMENSION_UNIT');
 			$packages[] = new SSPackage($p);
 		}
 		return $packages;

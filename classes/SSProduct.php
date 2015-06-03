@@ -54,6 +54,7 @@ class SSProduct
 	public $ounces = 0.;
 
 	public $weight_unit = '';
+	public $length_unit = '';
 
 	public $length = 0.;
 	public $width = 0.;
