@@ -39,7 +39,7 @@ class Sellstrom extends CarrierModule
 	{
 		$this->name = 'sellstrom';
 		$this->tab = 'shipping_logistics';
-		$this->version = '0.1.6';
+		$this->version = '0.1.7';
 		$this->author = 'Sellstrom Global Shipping';
 		$this->need_instance = 1;
 
@@ -575,7 +575,8 @@ class Sellstrom extends CarrierModule
 		// Get the total shipping cost including all taxes from the orders table
 		$sr = Db::getInstance()->getRow('SELECT `total_shipping`,
 												`total_paid_tax_incl`,
-												`total_paid`
+												`total_paid`,
+												`id_address_delivery`
 										FROM `'._DB_PREFIX_.'orders`
 										WHERE `id_order` = '.(int)$id_order);
 		$total_shipping_cost = pSQL($sr['total_shipping']);
@@ -585,6 +586,18 @@ class Sellstrom extends CarrierModule
 		$default_currency = Configuration::get('PS_CURRENCY_DEFAULT');
 		$curres = Db::getInstance()->getRow('SELECT `iso_code` FROM `'._DB_PREFIX_.'currency` WHERE `id_currency` = '.(int)$default_currency);
 		$cur_iso_code = $curres['iso_code'];
+
+		// Get the contact number of the delivery address
+		$address_sql = 'SELECT `phone`, `phone_mobile` FROM `'._DB_PREFIX_.'address` WHERE `id_address` = '.(int)$id_address_delivery;
+		$address_res = Db::getInstance()->getRow($address_sql);
+		$phone = pSQL($address_res['phone']);
+		$phone_mobile = pSQL($address_res['phone_mobile']);
+		$contact_phone = (!empty($phone)) ? $phone : $phone_mobile;
+
+		if (empty($contact_phone)) {
+			$this->_errors[] = Tools::safeOutput('Please provide the contact phone number for the shipping address.');
+			return false;
+		}
 
 		// Instanciate the client and set the login session
 		$this->instanciateClient();
@@ -596,6 +609,7 @@ class Sellstrom extends CarrierModule
 								'credentials' => $this->static_cred,
 								'quote_id' => $quote_id,
 								'quote_ref_id' => $quote_ref_id,
+								'contact_phone' => $contact_phone,
 								'total_shipping_cost' => $total_shipping_cost,
 								'total_product_cost' => $total_product_cost,
 								'currency' => $cur_iso_code
