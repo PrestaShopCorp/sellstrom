@@ -579,7 +579,7 @@ class Sellstrom extends CarrierModule
 												`id_address_delivery`
 										FROM `'._DB_PREFIX_.'orders`
 										WHERE `id_order` = '.(int)$id_order);
-		$total_shipping_cost = pSQL($sr['total_shipping']);
+		$total_shipping_cost = pSQL($sr['total_shipping']) - Configuration::get('PS_SHIPPING_HANDLING');
 		$total_product_cost  = pSQL($sr['total_paid_tax_incl']);
 		$id_address_delivery = pSQL($sr['id_address_delivery']);
 
