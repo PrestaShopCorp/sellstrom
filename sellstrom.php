@@ -579,8 +579,9 @@ class Sellstrom extends CarrierModule
 												`id_address_delivery`
 										FROM `'._DB_PREFIX_.'orders`
 										WHERE `id_order` = '.(int)$id_order);
-		$total_shipping_cost = pSQL($sr['total_shipping']);
+		$total_shipping_cost = pSQL($sr['total_shipping']) - Configuration::get('PS_SHIPPING_HANDLING');
 		$total_product_cost  = pSQL($sr['total_paid_tax_incl']);
+		$id_address_delivery = pSQL($sr['id_address_delivery']);
 
 		// Get the default currency of the shop - Configuration::get('PS_CURRENCY_DEFAULT')
 		$default_currency = Configuration::get('PS_CURRENCY_DEFAULT');
@@ -594,7 +595,8 @@ class Sellstrom extends CarrierModule
 		$phone_mobile = pSQL($address_res['phone_mobile']);
 		$contact_phone = (!empty($phone)) ? $phone : $phone_mobile;
 
-		if (empty($contact_phone)) {
+		if (empty($contact_phone))
+		{
 			$this->_errors[] = Tools::safeOutput('Please provide the contact phone number for the shipping address.');
 			return false;
 		}

@@ -64,7 +64,7 @@
 	</p>
 {if isset($validation)}
     <div class="conf confirm">
-    	 {$validation|escape}
+    	 {$validation|escape:'htmlall':'UTF-8'}
     </div>
 {/if}
 	<form action="" method="post">
